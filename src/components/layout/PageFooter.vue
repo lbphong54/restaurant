@@ -1,5 +1,5 @@
 <template>
-<footer class="footer set-bg" data-setbg="img/footer-bg.jpg">
+    <footer class="footer set-bg" data-setbg="img/footer-bg.jpg">
         <div class="container">
             <div class="row">
                 <div class="col-lg-4 col-md-6 col-sm-6">
@@ -18,7 +18,7 @@
                             <a href="#"><img src="img/footer-logo.png" alt=""></a>
                         </div>
                         <p>Lorem ipsum dolor amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut
-                        labore dolore magna aliqua.</p>
+                            labore dolore magna aliqua.</p>
                         <div class="footer__social">
                             <a href="#"><i class="fa fa-facebook"></i></a>
                             <a href="#"><i class="fa fa-twitter"></i></a>
@@ -39,16 +39,12 @@
                 </div>
             </div>
         </div>
-        
-</footer>
+
+    </footer>
 </template>
 
 <script>
-export default {
-  
-};
+
 </script>
 
-<style>
-
-</style>
+<style></style>

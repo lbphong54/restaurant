@@ -2,11 +2,14 @@ import { createRouter, createWebHistory } from "vue-router";
 
 import DefaultLayout from "../components/layout/DefaultLayout.vue";
 import HomePage from "../page/HomePage.vue";
-import RestaurantPage from '../page/RestaurantPage.vue';
 import AboutPage from '../page/AboutPage.vue';
 import ContactPage from '../page/ContactPage.vue';
 import BlogPage from '../page/BlogPage.vue';
 import RestaurantDetailPage from '../page/RestaurantDetailPage.vue';
+import LoginPage from '../page/LoginPage.vue';
+import RegisterPage from '../page/RegisterPage.vue';
+import RestaurantPage from '../page/RestaurantPage.vue';
+import ReservationPage from "../page/ReservationPage.vue";
 
 const routes = [
     {
@@ -17,35 +20,50 @@ const routes = [
                 path: "",
                 name: "home",
                 component: HomePage,
-
             },
             {
-                path: 'restaurant',
-                name: 'restaurant',
+                path: '/restaurant',
+                name: 'RestaurantPage',
                 component: RestaurantPage,
             },
             {
-                path: 'about',
-                name: 'about',
+                path: "about",
+                name: "about",
                 component: AboutPage,
             },
             {
-                path: 'contact',
-                name: 'contact',
+                path: "contact",
+                name: "contact",
                 component: ContactPage,
             },
             {
-                path: 'blog',
-                name: 'blog',
+                path: "blog",
+                name: "blog",
                 component: BlogPage,
             },
             {
-                path: 'restaurantdetail',
-                name: 'restaurantdetail',
+                path: "restaurantdetail/:id",
+                name: "RestaurantDetail",
                 component: RestaurantDetailPage,
             },
-        ]
-    }];
+            {
+                path: "login",
+                name: "login",
+                component: LoginPage,
+            },
+            {
+                path: "signup",
+                name: "signup",
+                component: RegisterPage,
+            },
+            {
+                path: 'reservation',
+                name: 'ReservationPage',
+                component: ReservationPage,
+            },
+        ],
+    },
+];
 
 const router = createRouter({
     history: createWebHistory(),

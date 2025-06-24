@@ -12,8 +12,8 @@ import './assets/css/style.css'
 //-------------------------------------------
 
 
-import $ from 'jquery';
-window.$ = window.jQuery = $;
+// import $ from 'jquery';
+// window.$ = window.jQuery = $;
 
 
 // ...existing code...

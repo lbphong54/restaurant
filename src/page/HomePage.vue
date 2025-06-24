@@ -26,10 +26,11 @@
       <div class="categories__slider-wrapper">
         <button class="arrow left" @click="scrollLeft">&#8592;</button>
         <div class="categories__slider-horizontal" ref="slider">
-          <div class="categories__item" v-for="item in items" :key="item.name">
+          <div class="categories__item" v-for="cat in restaurants_types" :key="cat.id" @click="goToCategory(cat)"
+            style="cursor:pointer">
             <div class="categories__item__icon">
-              <span :class="item.icon"></span>
-              <h5>{{ item.name }}</h5>
+              <span :class="cat.icon"></span>
+              <h5>{{ cat.name }}</h5>
             </div>
           </div>
         </div>
@@ -44,130 +45,20 @@
   <section class="product spad">
     <div class="container">
       <div class="row">
-        <div class="col-lg-3 col-md-6 col-sm-6">
+        <div class="col-lg-3 col-md-6 col-sm-6" v-for="item in restaurants" :key="item.id">
           <div class="product__item">
-            <div class="product__item__pic set-bg" data-setbg="img/shop/product-1.jpg">
+            <div class="product__item__pic set-bg" :data-setbg="item.image || 'img/shop/product-1.jpg'">
               <div class="product__label">
-                <span>Cupcake</span>
+                <span>{{ item.name }}</span>
               </div>
             </div>
             <div class="product__item__text">
-              <h6><a href="#">Dozen Cupcakes</a></h6>
-              <div class="product__item__price">$32.00</div>
+              <h6>
+                <strong>{{ item.name }}</strong> - {{ item.address }} - {{ item.phone }}
+              </h6>
+              <div class="product__item__price">{{ item.price_range ? `$${item.price_range}` : '' }}</div>
               <div class="cart_add">
-                <a><router-link to="/restaurantdetail" class="add-to-cart">Add</router-link></a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="product__item">
-            <div class="product__item__pic set-bg" data-setbg="img/shop/product-2.jpg">
-              <div class="product__label">
-                <span>Cupcake</span>
-              </div>
-            </div>
-            <div class="product__item__text">
-              <h6><a href="#">Cookies and Cream</a></h6>
-              <div class="product__item__price">$30.00</div>
-              <div class="cart_add">
-                <a href="#">Add to cart</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="product__item">
-            <div class="product__item__pic set-bg" data-setbg="img/shop/product-3.jpg">
-              <div class="product__label">
-                <span>Cupcake</span>
-              </div>
-            </div>
-            <div class="product__item__text">
-              <h6><a href="#">Gluten Free Mini Dozen</a></h6>
-              <div class="product__item__price">$31.00</div>
-              <div class="cart_add">
-                <a href="#">Add to cart</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="product__item">
-            <div class="product__item__pic set-bg" data-setbg="img/shop/product-4.jpg">
-              <div class="product__label">
-                <span>Cupcake</span>
-              </div>
-            </div>
-            <div class="product__item__text">
-              <h6><a href="#">Cookie Dough</a></h6>
-              <div class="product__item__price">$25.00</div>
-              <div class="cart_add">
-                <a href="#">Add to cart</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="product__item">
-            <div class="product__item__pic set-bg" data-setbg="img/shop/product-5.jpg">
-              <div class="product__label">
-                <span>Cupcake</span>
-              </div>
-            </div>
-            <div class="product__item__text">
-              <h6><a href="#">Vanilla Salted Caramel</a></h6>
-              <div class="product__item__price">$05.00</div>
-              <div class="cart_add">
-                <a href="#">Add to cart</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="product__item">
-            <div class="product__item__pic set-bg" data-setbg="img/shop/product-6.jpg">
-              <div class="product__label">
-                <span>Cupcake</span>
-              </div>
-            </div>
-            <div class="product__item__text">
-              <h6><a href="#">German Chocolate</a></h6>
-              <div class="product__item__price">$14.00</div>
-              <div class="cart_add">
-                <a href="#">Add to cart</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="product__item">
-            <div class="product__item__pic set-bg" data-setbg="img/shop/product-7.jpg">
-              <div class="product__label">
-                <span>Cupcake</span>
-              </div>
-            </div>
-            <div class="product__item__text">
-              <h6><a href="#">Dulce De Leche</a></h6>
-              <div class="product__item__price">$32.00</div>
-              <div class="cart_add">
-                <a href="#">Add to cart</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-lg-3 col-md-6 col-sm-6">
-          <div class="product__item">
-            <div class="product__item__pic set-bg" data-setbg="img/shop/product-8.jpg">
-              <div class="product__label">
-                <span>Cupcake</span>
-              </div>
-            </div>
-            <div class="product__item__text">
-              <h6><a href="#">Mississippi Mud</a></h6>
-              <div class="product__item__price">$08.00</div>
-              <div class="cart_add">
-                <a href="#">Add to cart</a>
+                <router-link :to="`/restaurantdetail/${item.id}`" class="add-to-cart">Đặt bàn</router-link>
               </div>
             </div>
           </div>
@@ -203,26 +94,14 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   data() {
     return {
-      restaurants: [
-        { id: 1, name: "Cupcake" },
-        { id: 2, name: "Butter" },
-        { id: 3, name: "Red Velvet" },
-        { id: 4, name: "Biscuit" },
-        { id: 5, name: "Donut" },
-        { id: 6, name: "Cupcake" },
-      ],
-      items: [
-        { name: "Cupcake", icon: "flaticon-029-cupcake-3" },
-        { name: "Butter", icon: "flaticon-034-chocolate-roll" },
-        { name: "Red Velvet", icon: "flaticon-005-pancake" },
-        { name: "Biscuit", icon: "flaticon-030-cupcake-2" },
-        { name: "Donut", icon: "flaticon-006-macarons" },
-        { name: "Cupcake", icon: "flaticon-006-macarons" },
-      ],
-
+      restaurants: [],
+      loading: true,
+      restaurants_types: [],
       current: 0,
       timer: null,
       heroImages: [
@@ -247,17 +126,44 @@ export default {
 
   mounted() {
     this.startAuto();
+    axios.get('http://localhost:8000/api/restaurant-types')
+      .then(res => {
+        console.log('Dữ liệu categories:', res.data);
+        this.restaurants_types = res.data.data;
+      })
+      .catch(err => {
+        console.error('Lỗi khi lấy categories:', err)
+      });
+
+    axios.get('http://localhost:8000/api/restaurants', {
+      params: {
+        page: 1,
+        limit: 8,
+      }
+    })
+      .then(res => {
+        console.log('Dữ liệu trả về:', res.data);
+        this.restaurants = res.data.data.data || [];
+      })
+      .catch(err => {
+        console.error('Lỗi khi lấy danh sách nhà hàng:', err)
+      })
+      .finally(() => {
+        this.loading = false
+      })
   },
+
   beforeUnmount() {
     clearInterval(this.timer);
   },
 
   methods: {
-
+    goToCategory(cat) {
+      this.$router.push({ name: 'RestaurantPage', query: { restaurants_types: cat.name } });
+    },
     startAuto() {
       this.timer = setInterval(this.next, 4000);
     },
-
     scrollLeft() {
       this.$refs.slider.scrollBy({ left: -150, behavior: "smooth" });
     },
@@ -267,19 +173,10 @@ export default {
     nextBanner() {
       this.current = (this.current + 1) % this.heroImages.length;
     },
-
     prevBanner() {
-      console.log(1);
       this.current = (this.current - 1 + this.heroImages.length) % this.heroImages.length;
     },
-  },
-
-
-  startAuto() {
-    console.log(1);
-    this.timer = setInterval(this.next, 4000);
   }
-
 };
 </script>
 
@@ -399,3 +296,4 @@ export default {
   margin-top: 120px;
 }
 </style>
+-->
