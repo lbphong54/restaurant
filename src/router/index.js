@@ -10,6 +10,7 @@ import LoginPage from '../page/LoginPage.vue';
 import RegisterPage from '../page/RegisterPage.vue';
 import RestaurantPage from '../page/RestaurantPage.vue';
 import ReservationPage from "../page/ReservationPage.vue";
+import HistoryPage from "../page/HistoryPage.vue";
 
 const routes = [
     {
@@ -60,6 +61,11 @@ const routes = [
                 path: 'reservation',
                 name: 'ReservationPage',
                 component: ReservationPage,
+            },
+            {
+                path: 'history',
+                name: 'history',
+                component: HistoryPage,
             },
         ],
     },

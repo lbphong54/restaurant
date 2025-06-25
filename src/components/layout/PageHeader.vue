@@ -25,6 +25,7 @@
                     <div class="option-bar-content" v-if="showOptionBar">
                       <template v-if="userName">
                         <button class="option-link" @click="logout">Đăng xuất</button>
+                        <button class="option-link"><router-link to="/history">Lịch sử</router-link></button>
                       </template>
                       <template v-else>
                         <router-link to="/login" class="option-link" @click="closeOptionBar">Đăng Nhập</router-link>
@@ -48,7 +49,6 @@
               <li><router-link to="/">Trang Chủ</router-link></li>
               <li><router-link to="/about">Về chúng tôi</router-link></li>
               <li><router-link to="/restaurant">Nhà hàng</router-link></li>
-
               <li><router-link to="/blog">Blog</router-link></li>
               <li><router-link to="/contact">Liên Hệ</router-link></li>
             </ul>
