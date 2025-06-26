@@ -39,6 +39,8 @@ export default {
       try {
         // Đảm bảo gửi cookie xác thực nếu dùng Sanctum
         axios.defaults.withCredentials = true;
+        const token = localStorage.getItem('token');
+        console.log("🚀 ~ submitBooking ~ token:", token)
 
         // Lấy restaurant_id từ query hoặc params (tùy cách bạn truyền)
         const restaurant_id = this.$route.query.restaurant_id || 1;
@@ -50,16 +52,16 @@ export default {
             adults: this.people,
             children: this.children,
             special_request: this.note,
-          },
-          {
-            withCredentials: true
+          }, {
+          headers: {
+            Authorization: `Bearer ${token}`
           }
+        }
         );
 
         this.message = res.data.message;
         this.error = '';
       } catch (err) {
-        console.log("🚀 ~ submitBooking ~ err:", err.message)
         this.error = 'Đặt bàn thất bại. Vui lòng thử lại.';
         this.message = '';
       }

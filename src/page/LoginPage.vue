@@ -45,9 +45,8 @@ export default {
                     password: this.password
                 });
                 // Xử lý thành công (ví dụ: lưu token, chuyển trang)
-                console.log(res.data);
-                console.log("🚀 ~ handleLogin ~ res.data.customer.full_name:", res.data.data.customer.full_name);
-                localStorage.setItem('token', res.data.token);
+                console.log(res.data.data.token);
+                localStorage.setItem('token', res.data.data.token);
                 localStorage.setItem('userName', res.data.data.customer.full_name);
 
                 this.$router.push('/'); // chuyển về trang chủ
