@@ -11,7 +11,7 @@
             <div class="header__top__inner">
               <div class="header__top__left"></div>
               <div class="header__logo">
-                <a href="/index.html"><img src="img/logo.png" alt="" /></a>
+                <a href="/index.html"><img src="/img/logo.png" alt="" /></a>
               </div>
               <div class="header__top__right">
                 <div class="header__top__links">
@@ -25,7 +25,7 @@
                     <div class="option-bar-content" v-if="showOptionBar">
                       <template v-if="userName">
                         <button class="option-link" @click="logout">Đăng xuất</button>
-                        <button class="option-link"><router-link to="/history">Lịch sử</router-link></button>
+                        <router-link class="option-link" to="/history">Đơn đặt bàn</router-link>
                       </template>
                       <template v-else>
                         <router-link to="/login" class="option-link" @click="closeOptionBar">Đăng Nhập</router-link>

@@ -1,10 +1,15 @@
 <template>
   <div class="container">
     <h2>Đặt bàn</h2>
+
+    <div v-if="name">
+      <strong>Nhà hàng:</strong> {{ name }}
+    </div>
+
     <form @submit.prevent="submitBooking">
-      <input type="text" v-model="full_name" placeholder="Họ và tên" required />
-      <input type="text" v-model="phone" placeholder="Số điện thoại" required />
-      <input type="email" v-model="email" placeholder="Email" />
+      <input type="text" v-model="full_name" placeholder="Họ và tên" readonly />
+      <input type="text" v-model="phone" placeholder="Số điện thoại" readonly />
+      <input type="email" v-model="email" placeholder="Email" readonly />
       <input type="number" v-model="people" placeholder="Số người lớn" min="1" required />
       <input type="number" v-model="children" placeholder="Số trẻ em" min="0" />
       <input type="datetime-local" v-model="booking_time" required />
@@ -32,41 +37,73 @@ export default {
       note: '',
       message: '',
       error: '',
+      name: '',
     };
+  },
+  async created() {
+    const restaurant_id = this.$route.query.restaurant_id || 1;
+
+    try {
+      // Lấy thông tin me
+      const user = JSON.parse(localStorage.getItem('me'));
+      this.full_name = user.full_name || '';
+      this.phone = user.phone || '';
+      this.email = user.email || '';
+
+      // Lấy tên nhà hàng
+
+      const resRestaurant = await axios.get(`http://localhost:8000/api/restaurants/${restaurant_id}`);
+      this.name = resRestaurant.data.data.name || '';
+    }
+    catch (err) {
+      console.error("Lỗi khi lấy thông tin:", err);
+      this.error = 'Không thể lấy dữ liệu người dùng hoặc nhà hàng.';
+    }
   },
   methods: {
     async submitBooking() {
       try {
-        // Đảm bảo gửi cookie xác thực nếu dùng Sanctum
-        axios.defaults.withCredentials = true;
+        const token = localStorage.getItem('token');
+        if (!token) {
+          this.error = 'Bạn chưa đăng nhập!';
+          this.message = '';
+          return;
+        }
 
-        // Lấy restaurant_id từ query hoặc params (tùy cách bạn truyền)
         const restaurant_id = this.$route.query.restaurant_id || 1;
+        console.log("🚀 ~ submitBooking ~ res:", this.booking_time)
 
-        const res = await axios.post('http://localhost:8000/api/reservations',
+        const res = await axios.post(
+          'http://localhost:8000/api/reservations',
           {
+            name: this.full_name,
+            phone: this.phone,
+            email: this.email,
             restaurant_id: restaurant_id,
             reservation_time: this.booking_time,
             adults: this.people,
             children: this.children,
-            special_request: this.note,
+            special_request: this.note
           },
           {
-            withCredentials: true
+            headers: {
+              Authorization: `Bearer ${token}`
+            }
           }
         );
 
         this.message = res.data.message;
         this.error = '';
       } catch (err) {
-        console.log("🚀 ~ submitBooking ~ err:", err.message)
+        console.log("🚀 ~ submitBooking ~ err:", err.response?.data || err.message);
         this.error = 'Đặt bàn thất bại. Vui lòng thử lại.';
         this.message = '';
       }
-    },
-  },
+    }
+  }
 };
 </script>
+
 
 <style scoped>
 .container {

@@ -44,7 +44,10 @@
                         <div class="product__details__option">
                             <div class="quantity">
                             </div>
-                            <a class="primary-btn"><router-link to="/reservation">Đặt bàn</router-link></a>
+                            <router-link class="primary-btn"
+                                :to="{ path: '/reservation', query: { restaurant_id: restaurant.id } }">
+                                Đặt bàn
+                            </router-link>
 
                         </div>
                     </div>
@@ -80,20 +83,29 @@
 
         <!-- Danh sách đánh giá -->
         <!-- Đánh giá từng cái một -->
-        <div v-if="currentReview">
-            <div class="review">
-                <strong>{{ currentReview.customer.full_name }}</strong> – ⭐ {{ currentReview.rating }}
-                <p>{{ currentReview.comment }}</p>
-                <small>{{ new Date(currentReview.created_at).toLocaleString() }}</small>
+        <div v-if="loadingReviews" class="text-center">Đang tải đánh giá...</div>
+        <template v-else>
+            <div v-if="reviews.length > 0">
+                <div class="review-list">
+                    <div class="review-item" v-for="review in reviews" :key="review.id">
+                        <div class="review-header">
+                            <span class="review-name">{{ review.customer.full_name }}</span>
+                            <span class="review-rating">⭐ {{ review.rating }}</span>
+                        </div>
+                        <div class="review-body">{{ review.comment }}</div>
+                        <div class="review-footer">{{ new Date(review.created_at).toLocaleString() }}</div>
+                    </div>
+                </div>
+                <!-- PHÂN TRANG -->
+                <nav v-if="reviewsPagination.last_page > 1" class="review-pagination">
+                    <button v-for="link in reviewsPagination.links" :key="link.label"
+                        :disabled="!link.url || link.active" v-html="link.label"
+                        @click="changeReviewPage(extractPage(link.url))"
+                        :class="{ active: link.active, navBtn: true }"></button>
+                </nav>
             </div>
-
-            <div class="review-navigation">
-                <button @click="prevReview" :disabled="currentIndex === 0">Trước</button>
-                <button @click="nextReview" :disabled="!hasNext">Tiếp</button>
-            </div>
-        </div>
-
-        <div v-else>Chưa có đánh giá nào.</div>
+            <div v-else class="no-review">Chưa có đánh giá nào.</div>
+        </template>
 
         <!-- Form viết đánh giá -->
         <div v-if="isLoggedIn" class="review-form">
@@ -156,10 +168,20 @@ export default {
             restaurant: null,
             loading: true,
             relatedRestaurants: [],
-            reviews: [],
             rating: '',
             comment: '',
             currentIndex: 0,
+            reservations: [],
+            selectedReservationId: '',
+            reviews: [],
+            reviewsPagination: {
+                current_page: 1,
+                per_page: 5,
+                last_page: 1,
+                total: 0,
+                links: [],
+            },
+            loadingReviews: false,
         };
     },
     setup() {
@@ -198,55 +220,104 @@ export default {
         currentReview() {
             return this.reviews[this.currentIndex] || null;
         },
+        currentReservation() {
+            return this.reservations[this.currentIndex] || null;
+        },
         hasNext() {
             return this.currentIndex < this.reviews.length - 1;
         },
     },
-    mounted() {
-        // const id = this.$route.params.id;
-        // console.log('ID lấy từ route:', id);
-        // axios.get(`http://localhost:8000/api/restaurants/${id}`)
-        //     .then(res => {
-        //         this.restaurant = res.data.data;
-        //         // Gọi tiếp API lấy sản phẩm liên quan
-        //         return axios.get(`http://localhost:8000/api/restaurants/${id}/related`);
-        //     })
-        //     .then(res => {
-        //         this.relatedRestaurants = res.data.data;
-        //     })
-        //     .catch(err => {
-        //         console.error('Lỗi khi lấy chi tiết nhà hàng hoặc sản phẩm liên quan:', err);
-        //     })
-        //     .finally(() => {
-        //         this.loading = false;
-        //     });
-        this.fetchReviews();
+    async mounted() {
+        if (this.restaurantId) {
+            await this.fetchReviews(1);
+        }
     },
 
     methods: {
-        async fetchReviews() {
-            const res = await axios.get(`http://localhost:8000/api/restaurants/${this.restaurantId}/reviews`);
-            this.reviews = res.data?.data;
-            console.log("🚀 ~ fetchReviews ~ res:", res.data.data)
-            this.currentIndex = 0;
+        async fetchReviews(page = 1) {
+            this.loadingReviews = true;
+            try {
+                const res = await axios.get(
+                    `http://localhost:8000/api/restaurants/${this.restaurantId}/reviews`,
+                    { params: { per_page: 5, page } }
+                );
+                this.reviews = res.data.data;
+                // Lưu thông tin phân trang
+                this.reviewsPagination = {
+                    current_page: res.data.current_page,
+                    per_page: res.data.per_page,
+                    last_page: res.data.last_page,
+                    total: res.data.total,
+                    links: res.data.links,
+                };
+            } catch (e) {
+                this.reviews = [];
+                this.reviewsPagination = {
+                    current_page: 1,
+                    per_page: 5,
+                    last_page: 1,
+                    total: 0,
+                    links: [],
+                };
+            }
+            this.loadingReviews = false;
+        },
+        changeReviewPage(page) {
+            if (page && page !== this.reviewsPagination.current_page) {
+                this.fetchReviews(page);
+            }
         },
         async submitReview() {
+            this.error = '';
+            if (!this.rating || !this.comment) {
+                alert('Vui lòng chọn số sao và nhập nội dung đánh giá!');
+                return;
+            }
             try {
+                const token = localStorage.getItem('token');
+                if (!token) {
+                    alert('Bạn chưa đăng nhập!');
+                    return;
+                }
+
+                // Log dữ liệu gửi lên để kiểm tra
+                console.log('Gửi đánh giá:', {
+                    rating: this.rating,
+                    comment: this.comment
+                });
+
                 await axios.post(
                     `http://localhost:8000/api/restaurants/${this.restaurantId}/reviews`,
-                    { 
-                        rating: this.rating, comment: this.comment 
+                    {
+                        rating: this.rating,
+                        comment: this.comment,
+                        reservation_id: this.restaurantId
                     },
-                    { 
-                        withCredentials: true
+                    {
+                        headers: {
+                            Authorization: `Bearer ${token}`
+                        }
                     }
                 );
                 this.rating = '';
                 this.comment = '';
-                this.fetchReviews();
+                await this.fetchReviews(1);
                 alert("Đánh giá đã gửi!");
             } catch (e) {
-                alert("Gửi đánh giá thất bại.");
+                // Hiển thị lỗi chi tiết từ backend nếu có
+                if (e.response && e.response.data) {
+                    console.error('Lỗi backend:', e.response.data);
+                    if (e.response.data.errors) {
+                        const errors = e.response.data.errors;
+                        alert(Object.values(errors).flat().join('\n'));
+                    } else if (e.response.data.message) {
+                        alert(e.response.data.message);
+                    } else {
+                        alert("Gửi đánh giá thất bại (500).");
+                    }
+                } else {
+                    alert("Gửi đánh giá thất bại (500).");
+                }
             }
         },
         nextReview() {
@@ -258,6 +329,19 @@ export default {
             if (this.currentIndex > 0) {
                 this.currentIndex--;
             }
+        },
+        goToReservation() {
+            const restaurantId = this.$route.params.id; // lấy từ URL /restaurantdetail/7
+
+            this.$router.push({
+                path: 'reservation',
+                query: { restaurant_id: restaurantId }
+            });
+        },
+        extractPage(url) {
+            if (!url) return null;
+            const match = url.match(/page=(\d+)/);
+            return match ? parseInt(match[1]) : null;
         },
     },
 
@@ -303,5 +387,77 @@ select {
 .review-navigation button {
     margin-right: 8px;
     padding: 6px 12px;
+}
+
+.review-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.review-item {
+    background: #f8fafe;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 15px;
+    border: 1px solid #ececec;
+    box-shadow: 0 1px 2px rgba(30, 60, 90, 0.04);
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.review-rating {
+    color: #ffb400;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+.review-body {
+    color: #444;
+    font-size: 14px;
+    margin-bottom: 0;
+    line-height: 1.4;
+}
+
+.review-footer {
+    text-align: right;
+    color: #888;
+    font-size: 12px;
+    margin-top: 0;
+}
+
+.review-pagination {
+    margin-top: 12px;
+    text-align: center;
+}
+
+.review-pagination .navBtn {
+    margin: 0 2px;
+    padding: 4px 10px;
+    border: none;
+    background: #f6f8fa;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 15px;
+}
+
+.review-pagination .navBtn.active,
+.review-pagination .navBtn:disabled {
+    background: #1890ff;
+    color: #fff;
+    cursor: default;
+}
+
+.no-review {
+    text-align: center;
+    color: #888;
+    padding: 16px 0;
 }
 </style>

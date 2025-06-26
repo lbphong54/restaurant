@@ -40,22 +40,26 @@ export default {
             this.error = '';
             this.loading = true;
             try {
+
+
                 const res = await axios.post('http://localhost:8000/api/login', {
                     email: this.email,
                     password: this.password
+                }, {
+                    withCredentials: true
                 });
-                // Xử lý thành công (ví dụ: lưu token, chuyển trang)
-                console.log(res.data);
-                console.log("🚀 ~ handleLogin ~ res.data.customer.full_name:", res.data.data.customer.full_name);
-                localStorage.setItem('token', res.data.token);
-                localStorage.setItem('userName', res.data.data.customer.full_name);
 
+                // Xử lý thành công (ví dụ: lưu token, chuyển trang)
+                localStorage.setItem('token', res.data.data.token);
+                localStorage.setItem('me', JSON.stringify(res.data.data.customer));
+                localStorage.setItem('userName', res.data.data.customer.full_name);
                 this.$router.push('/'); // chuyển về trang chủ
             } catch (err) {
                 this.error = err.response?.data?.message || 'Đăng nhập thất bại!';
             } finally {
                 this.loading = false;
             }
+
 
         }
     }

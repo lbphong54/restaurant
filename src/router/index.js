@@ -11,6 +11,7 @@ import RegisterPage from '../page/RegisterPage.vue';
 import RestaurantPage from '../page/RestaurantPage.vue';
 import ReservationPage from "../page/ReservationPage.vue";
 import HistoryPage from "../page/HistoryPage.vue";
+import QrPage from "../page/QrPage.vue";
 
 const routes = [
     {
@@ -66,6 +67,11 @@ const routes = [
                 path: 'history',
                 name: 'history',
                 component: HistoryPage,
+            },
+            {
+                path: 'qrpay',
+                name: 'qrpay',
+                component: QrPage,
             },
         ],
     },

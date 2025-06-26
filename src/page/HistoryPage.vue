@@ -1,135 +1,122 @@
 <template>
-  <div class="p-6 max-w-4xl mx-auto">
-    <h2 class="text-2xl font-bold mb-4">Lịch sử đặt bàn</h2>
+  <div class="p-6 max-w-6xl mx-auto">
+    <h2 class="text-2xl font-bold mb-4">Đơn đặt bàn</h2>
 
     <div v-if="loading" class="text-gray-500">Đang tải dữ liệu...</div>
-    <div v-else-if="bookings.length === 0" class="text-gray-500">Bạn chưa có đặt bàn nào.</div>
+    <div v-else-if="reservations.length === 0" class="text-gray-500">Bạn chưa có đơn đặt bàn nào.</div>
 
-    <div v-else class="space-y-4">
-      <div
-        v-for="booking in bookings"
-        :key="booking.id"
-        class="p-4 rounded-xl shadow bg-white border relative"
-      >
-        <p><strong>Nhà hàng:</strong> {{ booking.restaurant_name }}</p>
-        <p><strong>Thời gian:</strong> {{ formatDate(booking.datetime) }}</p>
-        <p><strong>Số người:</strong> {{ booking.guests }}</p>
-        <p><strong>Ghi chú:</strong> {{ booking.note || 'Không có' }}</p>
-        <p>
-          <strong>Trạng thái:</strong>
-          <span :class="statusClass(booking.status)">{{ booking.status }}</span>
-        </p>
-
-        <!-- Đếm ngược & nút hủy -->
-        <div v-if="booking.status === 'đang chờ'" class="mt-3 flex items-center justify-between">
-          <div v-if="canCancel(booking)" class="text-sm text-red-600">
-            Bạn có thể hủy trong: <strong>{{ countdowns[booking.id] }}</strong>
-          </div>
-          <button
-            v-if="canCancel(booking)"
-            class="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700"
-            @click="cancelBooking(booking.id)"
-          >
-            Hủy đặt bàn
-          </button>
-        </div>
-      </div>
+    <div v-else class="overflow-auto rounded-xl border border-gray-300 bg-white">
+      <table class="min-w-full text-sm text-left border-collapse">
+        <thead class="bg-gray-100 text-gray-700">
+          <tr>
+            <th class="px-4 py-2 border border-gray-300">STT</th>
+            <th class="px-4 py-2 border border-gray-300">Nhà hàng</th>
+            <th class="px-4 py-2 border border-gray-300">Thời gian</th>
+            <th class="px-4 py-2 border border-gray-300">Người lớn</th>
+            <th class="px-4 py-2 border border-gray-300">Trẻ em</th>
+            <th class="px-4 py-2 border border-gray-300">Ghi chú</th>
+            <th class="px-4 py-2 border border-gray-300">Trạng thái</th>
+            <th class="px-4 py-2 border border-gray-300">Hủy</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(res, index) in reservations" :key="res.id">
+            <td class="px-4 py-2 border border-gray-300">{{ index + 1 }}</td>
+            <td class="px-4 py-2 border border-gray-300">{{ res.restaurant_name || 'Không rõ' }}</td>
+            <td class="px-4 py-2 border border-gray-300">
+              {{ formatDate(res.reservation_time || res.datetime || res.datime) }}
+            </td>
+            <td class="px-4 py-2 border border-gray-300">{{ res.adults ?? '—' }}</td>
+            <td class="px-4 py-2 border border-gray-300">{{ res.children ?? '—' }}</td>
+            <td class="px-4 py-2 border border-gray-300">{{ res.special_request || 'Không có' }}</td>
+            <td class="px-4 py-2 border border-gray-300">
+              <span :class="statusClass(res.status)">
+                {{ statusText(res.status) }}
+              </span>
+            </td>
+            <td class="primary-btn">
+              <button v-if="res.status === 'pending'" @click="cancelReservation(res.id)" class="cancel-btn">
+                Hủy
+              </button>
+              <span v-else class="text-gray-400 text-sm">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
-  name: 'BookingHistory',
+  name: 'HistoryPage',
   data() {
     return {
-      bookings: [],
+      reservations: [],
       loading: true,
-      countdowns: {}, // Lưu thời gian đếm ngược từng booking
-      intervalId: null,
     };
   },
   mounted() {
-    this.fetchBookingHistory();
-    this.intervalId = setInterval(this.updateCountdowns, 1000); // Cập nhật mỗi giây
-  },
-  beforeUnmount() {
-    clearInterval(this.intervalId);
+    this.fetchReservations();
   },
   methods: {
-    async fetchBookingHistory() {
+    async fetchReservations() {
       try {
-        const res = await fetch('http://localhost:8000/api/bookings', {
-          credentials: 'include',
-        });
-        const data = await res.json();
-        this.bookings = data;
-        this.initCountdowns();
+        const token = localStorage.getItem('token');
+        const res = await axios.get(
+          'http://localhost:8000/api/reservations/history',
+          {
+            headers: { Authorization: `Bearer ${token}` }
+          }
+        );
+        this.reservations = res.data.data || [];
       } catch (err) {
-        console.error(err);
+        console.error('Lỗi khi lấy danh sách đặt bàn:', err);
       } finally {
         this.loading = false;
       }
     },
     formatDate(datetime) {
-      return new Date(datetime).toLocaleString('vi-VN');
+      if (!datetime) return '—';
+      const date = new Date(datetime);
+      return isNaN(date.getTime()) ? '—' : date.toLocaleString('vi-VN');
     },
     statusClass(status) {
       switch (status) {
-        case 'đã xác nhận':
-          return 'text-green-600';
-        case 'đang chờ':
-          return 'text-yellow-500';
-        case 'đã hủy':
-          return 'text-red-500';
+        case 'confirmed':
+          return 'text-green-600 font-medium';
+        case 'pending':
+          return 'text-yellow-600 font-medium';
+        case 'cancelled':
+          return 'text-red-600 font-medium';
         default:
           return 'text-gray-500';
       }
     },
-    // Tính xem còn hủy được không (trong 5 phút)
-    canCancel(booking) {
-      const createdTime = new Date(booking.created_at);
-      const now = new Date();
-      const diff = (now - createdTime) / 1000; // giây
-      return diff < 300; // 5 phút
+    statusText(status) {
+      switch (status) {
+        case 'confirmed':
+          return 'Xác nhận';
+        case 'pending':
+          return 'Đang chờ';
+        case 'cancelled':
+          return 'Đã hủy';
+        default:
+          return status;
+      }
     },
-    initCountdowns() {
-      this.bookings.forEach((booking) => {
-        if (booking.status === 'đang chờ' && this.canCancel(booking)) {
-          const remaining = 300 - (new Date() - new Date(booking.created_at)) / 1000;
-          this.countdowns[booking.id] = this.formatSeconds(remaining);
-        }
-      });
-    },
-    updateCountdowns() {
-      Object.keys(this.countdowns).forEach((id) => {
-        const remaining = this.parseSeconds(this.countdowns[id]) - 1;
-        if (remaining <= 0) {
-          delete this.countdowns[id];
-        } else {
-          this.countdowns[id] = this.formatSeconds(remaining);
-        }
-      });
-    },
-    formatSeconds(seconds) {
-      const m = String(Math.floor(seconds / 60)).padStart(2, '0');
-      const s = String(Math.floor(seconds % 60)).padStart(2, '0');
-      return `${m}:${s}`;
-    },
-    parseSeconds(timeString) {
-      const [m, s] = timeString.split(':').map(Number);
-      return m * 60 + s;
-    },
-    async cancelBooking(id) {
-      if (!confirm('Bạn có chắc chắn muốn hủy đặt bàn này?')) return;
-
+    async cancelReservation(id) {
+      if (!confirm('Bạn có chắc chắn muốn hủy đơn đặt bàn này?')) return;
       try {
-        const res = await fetch(`http://localhost:8000/api/bookings/${id}/cancel`, {
-          method: 'POST',
-          credentials: 'include',
-        });
-        if (!res.ok) throw new Error('Hủy thất bại');
-        this.fetchBookingHistory(); // Reload dữ liệu
+        const token = localStorage.getItem('token');
+        await axios.post(
+          `http://localhost:8000/api/reservations/${id}/cancel`,
+          {},
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        this.fetchReservations();
       } catch (err) {
         alert('Hủy đặt bàn thất bại!');
         console.error(err);
@@ -138,3 +125,87 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.09);
+}
+
+th,
+td {
+  padding: 12px 16px;
+  border: 1px solid #e5e7eb;
+  text-align: center;
+}
+
+th {
+  background: #f3f4f6;
+  font-weight: 600;
+  color: #374151;
+}
+
+tr:nth-child(even) {
+  background: #fafbfc;
+}
+
+tr:hover {
+  background: #f1f5f9;
+}
+
+.primary-btn {
+  background: transparent;
+  padding: 0;
+  text-align: center;
+}
+
+.cancel-btn {
+  background: #ff4d4f;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 18px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s;
+  box-shadow: 0 2px 8px rgba(255, 77, 79, 0.08);
+  margin: 0 auto;
+  display: block;
+}
+
+.cancel-btn:hover {
+  background: #d9363e;
+  color: #fff;
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 4px 16px rgba(255, 77, 79, 0.13);
+}
+
+.text-red-600 {
+  color: #ff4d4f !important;
+}
+
+.text-green-600 {
+  color: #52c41a !important;
+}
+
+.text-yellow-600 {
+  color: #faad14 !important;
+}
+
+.text-gray-400 {
+  color: #bdbdbd !important;
+}
+
+.text-gray-500 {
+  color: #757575 !important;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+</style>
