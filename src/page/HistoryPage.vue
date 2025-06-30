@@ -20,7 +20,7 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(res, index) in reservations" :key="res.id">
+          <tr v-for="(res, index) in filteredReservations" :key="res.id">
             <td class="px-4 py-2 border border-gray-300">{{ index + 1 }}</td>
             <td class="px-4 py-2 border border-gray-300">{{ res.restaurant_name || 'Không rõ' }}</td>
             <td class="px-4 py-2 border border-gray-300">
@@ -71,7 +71,8 @@ export default {
             headers: { Authorization: `Bearer ${token}` }
           }
         );
-        this.reservations = res.data.data || [];
+        this.reservations = res.data.data ?? [];
+        // this.reservations = res.data.data || [];
       } catch (err) {
         console.error('Lỗi khi lấy danh sách đặt bàn:', err);
       } finally {
@@ -123,6 +124,12 @@ export default {
       }
     },
   },
+  computed: {
+    filteredReservations() {
+      if (!Array.isArray(this.reservations)) return [];
+      return this.reservations.filter(r => r !== null && r !== undefined);
+    }
+  }
 };
 </script>
 

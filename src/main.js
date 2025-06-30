@@ -10,7 +10,7 @@ import './assets/css/nice-select.css'
 import './assets/css/slicknav.min.css'
 import './assets/css/style.css'
 //-------------------------------------------
-
+import './assets/tailwind.css';
 
 // import $ from 'jquery';
 // window.$ = window.jQuery = $;

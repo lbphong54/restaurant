@@ -12,6 +12,7 @@ import RestaurantPage from '../page/RestaurantPage.vue';
 import ReservationPage from "../page/ReservationPage.vue";
 import HistoryPage from "../page/HistoryPage.vue";
 import QrPage from "../page/QrPage.vue";
+import ProfilePage from "../page/ProfilePage.vue";
 
 const routes = [
     {
@@ -72,6 +73,11 @@ const routes = [
                 path: 'qrpay',
                 name: 'qrpay',
                 component: QrPage,
+            },
+            {
+                path: 'profile',
+                name: 'profile',
+                component: ProfilePage,
             },
         ],
     },

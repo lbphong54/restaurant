@@ -1,8 +1,13 @@
 <template>
   <section class="hero">
     <div class="hero__slider">
-      <div class="hero__item" v-for="(img, idx) in heroImages" :key="img"
-        :style="{ backgroundImage: `url(${img.url})`, display: idx === current ? 'block' : 'none', }">
+      <div
+        class="hero__item"
+        v-for="(img, idx) in heroImages"
+        :key="img.idx"
+        v-show="idx === current"
+        :style="{ backgroundImage: `url(${img.url})` }"
+      >
         <div class="container">
           <div class="row d-flex justify-content-center">
             <div class="col-lg-8">
@@ -26,12 +31,21 @@
       <div class="categories__slider-wrapper">
         <button class="arrow left" @click="scrollLeft">&#8592;</button>
         <div class="categories__slider-horizontal" ref="slider">
-          <div class="categories__item" v-for="cat in restaurants_types" :key="cat.id" @click="goToCategory(cat)"
-            style="cursor:pointer">
-            <div class="categories__item__icon">
-              <span :class="cat.icon"></span>
-              <h5>{{ cat.name }}</h5>
-            </div>
+          <div
+            class="categories__item"
+            v-for="cat in restaurants_types"
+            :key="cat.id"
+            @click="goToCategory(cat)"
+            style="cursor: pointer"
+          >
+          <div class="categories__item__icon">
+    <img
+      :src="getImageByIcon(cat.icon)"
+      class="cat-icon"
+      alt="category"
+    />
+  </div>
+            <h5 class="categories__name">{{ cat.name }}</h5>
           </div>
         </div>
         <button class="arrow right" @click="scrollRight">&#8594;</button>
@@ -45,20 +59,34 @@
   <section class="product spad">
     <div class="container">
       <div class="row">
-        <div class="col-lg-3 col-md-6 col-sm-6" v-for="item in restaurants" :key="item.id">
+        <div
+          class="col-lg-3 col-md-6 col-sm-6"
+          v-for="item in restaurants"
+          :key="item.id"
+        >
           <div class="product__item">
-            <div class="product__item__pic set-bg" :data-setbg="item.image || 'img/shop/product-1.jpg'">
+            <div
+              class="product__item__pic set-bg"
+              :data-setbg="item.image || 'img/shop/product-1.jpg'"
+            >
               <div class="product__label">
                 <span>{{ item.name }}</span>
               </div>
             </div>
             <div class="product__item__text">
               <h6>
-                <strong>{{ item.name }}</strong> - {{ item.address }} - {{ item.phone }}
+                <strong>{{ item.name }}</strong> - {{ item.address }} -
+                {{ item.phone }}
               </h6>
-              <div class="product__item__price">{{ item.price_range ? `$${item.price_range}` : '' }}</div>
+              <div class="product__item__price">
+                {{ item.price_range ? `$${item.price_range}` : "" }}
+              </div>
               <div class="cart_add">
-                <router-link :to="`/restaurantdetail/${item.id}`" class="add-to-cart">Đặt bàn</router-link>
+                <router-link
+                  :to="`/restaurantdetail/${item.id}`"
+                  class="add-to-cart"
+                  >Đặt bàn</router-link
+                >
               </div>
             </div>
           </div>
@@ -74,10 +102,10 @@
       <div class="row">
         <div class="col-lg-4 col-md-7">
           <div class="map__inner">
-            <h6>COlorado</h6>
+            <h6>Việt Nam</h6>
             <ul>
-              <li>1000 Lakepoint Dr, Frisco, CO 80443, USA</li>
-              <li>Sweetcake@support.com</li>
+              <li>113 Lí Thường Kiệt,Bình Thạnh, Tp. HCM</li>
+              <li>info@amthucviet.com</li>
               <li>+1 800-786-1000</li>
             </ul>
           </div>
@@ -86,15 +114,20 @@
     </div>
     <div class="map__iframe">
       <iframe
-        src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d10784.188505644011!2d19.053119335158936!3d47.48899529453826!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2sbd!4v1543907528304"
-        height="300" style="border: 0" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
+        src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3919.1653793919336!2d106.68621413319248!3d10.798642614036018!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2s!4v1751228073277!5m2!1sen!2s"
+        height="300"
+        style="border: 0"
+        allowfullscreen=""
+        aria-hidden="false"
+        tabindex="0"
+      ></iframe>
     </div>
   </div>
   <!-- Map End -->
 </template>
 
 <script>
-import axios from 'axios';
+import axios from "axios";
 
 export default {
   data() {
@@ -102,55 +135,69 @@ export default {
       restaurants: [],
       loading: true,
       restaurants_types: [],
+      categories: [
+        { id: 1, icon: "hot-pot" },
+        { id: 2, icon: "grilling" },
+        { id: 3, icon: "salad" },
+        { id: 4, icon: "seafood" },
+        { id: 5, icon: "noodles" },
+        { id: 6, icon: "goi-cuon" },
+        { id: 7, icon: "sushi" },
+        { id: 8, icon: "bibimbap" },
+        { id: 9, icon: "food" },
+        { id: 10, icon: "black-and-tan" },
+      ],
       current: 0,
       timer: null,
       heroImages: [
         {
           idx: 1,
-          url: 'img/hero/hero-1.jpg',
-          text: 'Making your life sweeter one bite at a time!'
+          url: "img/hero/hero-1.jpg",
+          text: "Making your life sweeter one bite at a time!",
         },
         {
           idx: 2,
-          url: 'img/hero/hero-2.jpg',
-          text: 'Delicious cakes for every occasion!'
+          url: "img/hero/hero-2.jpg",
+          text: "Delicious cakes for every occasion!",
         },
         {
           idx: 3,
-          url: 'img/hero/hero-3.jpg',
-          text: 'Freshly baked happiness!'
-        }
-      ]
+          url: "img/hero/hero-3.jpg",
+          text: "Freshly baked happiness!",
+        },
+      ],
     };
   },
 
   mounted() {
     this.startAuto();
-    axios.get('http://localhost:8000/api/restaurant-types')
-      .then(res => {
-        console.log('Dữ liệu categories:', res.data);
+    axios
+      .get("http://localhost:8000/api/restaurant-types")
+      .then((res) => {
+        console.log("Dữ liệu categories:", res.data);
         this.restaurants_types = res.data.data;
       })
-      .catch(err => {
-        console.error('Lỗi khi lấy categories:', err)
+      .catch((err) => {
+        console.error("Lỗi khi lấy categories:", err);
       });
 
-    axios.get('http://localhost:8000/api/restaurants', {
-      params: {
-        page: 1,
-        limit: 8,
-      }
-    })
-      .then(res => {
-        console.log('Dữ liệu trả về:', res.data);
+    axios
+      .get("http://localhost:8000/api/restaurants", {
+        params: {
+          page: 1,
+          limit: 8,
+        },
+      })
+      .then((res) => {
+        console.log("Dữ liệu trả về:", res.data);
         this.restaurants = res.data.data.data || [];
       })
-      .catch(err => {
-        console.error('Lỗi khi lấy danh sách nhà hàng:', err)
+      .catch((err) => {
+        console.error("Lỗi khi lấy danh sách nhà hàng:", err);
       })
       .finally(() => {
-        this.loading = false
-      })
+        this.loading = false;
+      });
   },
 
   beforeUnmount() {
@@ -159,10 +206,13 @@ export default {
 
   methods: {
     goToCategory(cat) {
-      this.$router.push({ name: 'RestaurantPage', query: { restaurants_types: cat.name } });
+      this.$router.push({
+        name: "RestaurantPage",
+        query: { restaurants_types: cat.name },
+      });
     },
     startAuto() {
-      this.timer = setInterval(this.next, 4000);
+      this.timer = setInterval(this.nextBanner, 4000);
     },
     scrollLeft() {
       this.$refs.slider.scrollBy({ left: -150, behavior: "smooth" });
@@ -174,9 +224,13 @@ export default {
       this.current = (this.current + 1) % this.heroImages.length;
     },
     prevBanner() {
-      this.current = (this.current - 1 + this.heroImages.length) % this.heroImages.length;
+      this.current =
+        (this.current - 1 + this.heroImages.length) % this.heroImages.length;
     },
-  }
+    getImageByIcon(icon) {
+        return `/img/categories/${icon}.png`; 
+    },
+  },
 };
 </script>
 
@@ -295,5 +349,89 @@ export default {
   border-radius: 8px;
   margin-top: 120px;
 }
+
+.categories__item {
+  min-width: 120px;
+  background: #fff;
+  border-radius: 8px;
+  text-align: center;
+  padding: 16px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.categories__name {
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+  margin: 0;
+}
+.categories__item__icon span {
+  background: #e0f2f1;
+  border-radius: 50%;
+  padding: 12px;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* .cat-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  border-radius: 50%;
+  background: #e0f2f1;
+  padding: 8px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  margin-bottom: 6px;
+} */
+
+.product__label::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.3s ease;
+  border-radius: inherit;
+}
+
+.product__item:hover .product__label::after {
+  transform: scaleX(1);
+}
+
+
+.cart_add .add-to-cart {
+  display: inline-block;
+  margin-top: 10px;
+  background: linear-gradient(to right, #009688, #e67c1b);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+  transition: background 0.3s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.cart_add .add-to-cart:hover {
+  background: linear-gradient(to right, #00796b, #cf6c14);
+  transform: translateY(-1px);
+  color: #fff;
+}
+
+.product__item:hover .product__label {
+  background: #e67c1b; 
+  transform: scale(1.05);
+  transition: all 0.3s ease;
+}
+
+
 </style>
--->

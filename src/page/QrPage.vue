@@ -1,12 +1,12 @@
 <template>
     <div class="container">
-        ...
         <div v-if="qrData" class="qr-code">
             <h4>Mã QR đặt cọc</h4>
             <img :src="qrValue" alt="Mã QR chuyển khoản" style="width:200px;height:200px;" />
             <p><strong>Nội dung:</strong> {{ qrData.message }}</p>
             <p><strong>Số tiền:</strong> {{ qrData.amount.toLocaleString() }} VND</p>
             <p><strong>Số tài khoản:</strong> {{ qrData.bank_account }}</p>
+            <button class="confirm-btn" @click="confirmDeposit">Xác nhận đặt cọc</button>
         </div>
     </div>
 </template>
@@ -64,13 +64,18 @@ export default {
                 );
 
                 this.message = res.data.message;
-                this.qrData = res.data.qr; // 👈 lưu dữ liệu QR
+                this.qrData = res.data.qr;
                 this.error = '';
             } catch (err) {
                 this.error = 'Đặt bàn thất bại. Vui lòng thử lại.';
                 this.message = '';
             }
+        },
+
+        confirmDeposit() {
+            this.$router.push({ name: 'home' }); // hoặc { path: '/' } nếu route name là Home
         }
+
     }
 };
 </script>
@@ -82,5 +87,22 @@ export default {
     padding: 16px;
     background: #f3f3f3;
     border-radius: 8px;
+}
+
+.confirm-btn {
+    margin-top: 20px;
+    background: #52c41a;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 28px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.confirm-btn:hover {
+    background: #389e0d;
 }
 </style>

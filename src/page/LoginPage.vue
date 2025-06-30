@@ -1,27 +1,26 @@
 <template>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <h2 class="login-title">Đăng nhập</h2>
 
-    <body>
-        <div class="container">
-            <input type="checkbox" id="check">
-            <div class="login form">
-                <header>Đăng nhập</header>
-                <form @submit.prevent="handleLogin">
-                    <input type="text" placeholder="Nhập Email của bạn" v-model="email" required>
-                    <input type="password" placeholder="Nhập mật khẩu" v-model="password" required>
-                    <input type="submit" class="button" :value="loading ? 'Đang đăng nhập...' : 'Đăng nhập'"
-                        :disabled="loading">
-                </form>
-                <div v-if="error" style="color: red; margin-top: 8px;">{{ error }}</div>
-                <div class="signup">
-                    <span class="signup">Bạn chưa có tài khoản?
-                        <router-link to="/signup" class="">Đăng Ký</router-link>
-                    </span>
-                </div>
-            </div>
+            <form @submit.prevent="handleLogin" class="login-form">
+                <input type="text" placeholder="Email của bạn" v-model="email" required />
+                <input type="password" placeholder="Mật khẩu" v-model="password" required />
+                <button class="primary-btn" type="submit" :disabled="loading">
+                    {{ loading ? 'Đang đăng nhập...' : 'Đăng nhập' }}
+                </button>
+            </form>
 
+            <div v-if="error" class="error-text">{{ error }}</div>
+
+            <p class="signup-text">
+                Bạn chưa có tài khoản?
+                <router-link to="/signup">Đăng ký</router-link>
+            </p>
         </div>
-    </body>
+    </div>
 </template>
+  
 
 <script>
 import axios from 'axios';
@@ -67,107 +66,90 @@ export default {
 </script>
 
 <style scoped>
-.container {
-    min-height: 480px;
-    width: 100%;
-    max-width: 380px;
-    margin: 40px auto;
-    background: #fff;
-    border-radius: 12px;
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.13);
+.login-wrapper {
     display: flex;
-    flex-direction: column;
+    justify-content: center;
     align-items: center;
-    position: relative;
-    padding: 32px 18px 24px 18px;
-    box-sizing: border-box;
+    min-height: 80vh;
+    background: #f8fafa;
+    padding: 32px 16px;
 }
 
-input[type="checkbox"] {
-    display: none;
-}
-
-.form {
+.login-card {
     width: 100%;
-    position: relative;
+    max-width: 400px;
     background: #fff;
-    padding: 32px 0 0 0;
-    box-sizing: border-box;
-}
-
-header {
-    font-size: 2rem;
-    font-weight: 600;
+    padding: 32px 28px;
+    border-radius: 12px;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.06);
     text-align: center;
-    margin-bottom: 24px;
-    color: #e67c1b;
-    letter-spacing: 1px;
 }
 
-form {
+.login-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #e67c1b;
+    margin-bottom: 24px;
+}
+
+.login-form {
     display: flex;
     flex-direction: column;
     gap: 16px;
-    width: 100%;
 }
 
-form input[type="text"],
-form input[type="password"] {
-    height: 42px;
-    width: 100%;
-    padding: 0 12px;
+.login-form input {
+    padding: 12px;
     font-size: 15px;
     border: 1px solid #ddd;
-    border-radius: 6px;
+    border-radius: 8px;
+    transition: 0.3s;
+}
+
+.login-form input:focus {
+    border-color: #009688;
     outline: none;
-    background: #fafafa;
-    transition: border 0.2s, background 0.2s;
-    box-sizing: border-box;
+    background-color: #fff;
 }
 
-form input[type="text"]:focus,
-form input[type="password"]:focus {
-    border: 1.5px solid #e67c1b;
-    background: #fff;
-}
-
-form input.button {
+.primary-btn {
+    background: linear-gradient(to right, #009688, #e67c1b);
     color: #fff;
-    background: #e67c1b;
-    font-size: 1.08rem;
+    padding: 12px;
+    font-size: 16px;
+    border-radius: 8px;
     font-weight: 600;
-    margin-top: 4px;
-    cursor: pointer;
     border: none;
-    border-radius: 6px;
-    height: 42px;
-    transition: background 0.3s;
-    box-shadow: 0 2px 8px rgba(230, 124, 27, 0.08);
-    width: 100%;
-}
-
-form input.button:hover {
-    background: #b85d0d;
-}
-
-.signup {
-    font-size: 15px;
-    text-align: center;
-    margin-top: 18px;
-    color: #555;
-    width: 100%;
-}
-
-.signup label {
-    color: #e67c1b;
     cursor: pointer;
-    font-weight: 600;
-    margin-left: 5px;
-    transition: text-decoration 0.2s, color 0.2s;
+    transition: background 0.3s, transform 0.2s ease;
 }
 
-.signup label:hover {
-    text-decoration: underline;
-    color: #b85d0d;
+.primary-btn:hover {
+    background: linear-gradient(to right, #00796b, #cf6c14);
+    transform: translateY(-1px);
+}
+
+.signup-text {
+    font-size: 14px;
+    margin-top: 20px;
+    color: #444;
+}
+
+.signup-text a {
+    font-weight: 600;
+    color: #009688;
+    margin-left: 4px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.signup-text a:hover {
+    color: #e67c1b;
+}
+
+.error-text {
+    color: red;
+    font-size: 14px;
+    margin-top: 12px;
 }
 </style>
