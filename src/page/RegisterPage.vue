@@ -30,7 +30,7 @@ export default {
     name: 'RegisterPage',
     data() {
         return {
-            name: '',
+            full_name: '',
             phone: '',
             email: '',
             password: '',
@@ -46,16 +46,25 @@ export default {
                     email: this.email,
                     password: this.password
                 });
+                this.$router.push({
+                    name: 'otp',
+                    query: { email: this.email }
+                });
+                // alert('Đăng ký thành công!'); // Có thể giữ hoặc bỏ
+                
                 alert('Đăng ký thành công!');
-                this.$router.push('/login');
             } catch (error) {
+                console.error("Đăng ký lỗi:", error.response ? error.response.data : error);
                 if (error.response && error.response.data.errors) {
                     this.error = Object.values(error.response.data.errors).flat().join(', ');
+                } else if (error.response && error.response.data.message) {
+                    this.error = error.response.data.message;
                 } else {
                     this.error = 'Đăng ký thất bại.';
                 }
             }
         }
+        
     }
 }
 </script>

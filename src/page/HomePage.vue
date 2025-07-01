@@ -1,13 +1,8 @@
 <template>
   <section class="hero">
     <div class="hero__slider">
-      <div
-        class="hero__item"
-        v-for="(img, idx) in heroImages"
-        :key="img.idx"
-        v-show="idx === current"
-        :style="{ backgroundImage: `url(${img.url})` }"
-      >
+      <div class="hero__item" v-for="(img, idx) in heroImages" :key="img.idx" v-show="idx === current"
+        :style="{ backgroundImage: `url(${img.url})` }">
         <div class="container">
           <div class="row d-flex justify-content-center">
             <div class="col-lg-8">
@@ -31,20 +26,11 @@
       <div class="categories__slider-wrapper">
         <button class="arrow left" @click="scrollLeft">&#8592;</button>
         <div class="categories__slider-horizontal" ref="slider">
-          <div
-            class="categories__item"
-            v-for="cat in restaurants_types"
-            :key="cat.id"
-            @click="goToCategory(cat)"
-            style="cursor: pointer"
-          >
-          <div class="categories__item__icon">
-    <img
-      :src="getImageByIcon(cat.icon)"
-      class="cat-icon"
-      alt="category"
-    />
-  </div>
+          <div class="categories__item" v-for="cat in restaurants_types" :key="cat.id" @click="goToCategory(cat)"
+            style="cursor: pointer">
+            <div class="categories__item__icon">
+              <img :src="cat.image" class="cat-icon" alt="category" />
+            </div>
             <h5 class="categories__name">{{ cat.name }}</h5>
           </div>
         </div>
@@ -59,16 +45,10 @@
   <section class="product spad">
     <div class="container">
       <div class="row">
-        <div
-          class="col-lg-3 col-md-6 col-sm-6"
-          v-for="item in restaurants"
-          :key="item.id"
-        >
+        <div class="col-lg-3 col-md-6 col-sm-6" v-for="item in restaurants" :key="item.id">
           <div class="product__item">
-            <div
-              class="product__item__pic set-bg"
-              :data-setbg="item.image || 'img/shop/product-1.jpg'"
-            >
+            <div class="product__item__pic"
+              :style="{ backgroundImage: `url(${item.avatar || '/img/shop/product-1.jpg'})` }">
               <div class="product__label">
                 <span>{{ item.name }}</span>
               </div>
@@ -82,11 +62,7 @@
                 {{ item.price_range ? `$${item.price_range}` : "" }}
               </div>
               <div class="cart_add">
-                <router-link
-                  :to="`/restaurantdetail/${item.id}`"
-                  class="add-to-cart"
-                  >Đặt bàn</router-link
-                >
+                <router-link :to="`/restaurantdetail/${item.id}`" class="add-to-cart">Đặt bàn</router-link>
               </div>
             </div>
           </div>
@@ -115,12 +91,7 @@
     <div class="map__iframe">
       <iframe
         src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3919.1653793919336!2d106.68621413319248!3d10.798642614036018!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1sen!2s!4v1751228073277!5m2!1sen!2s"
-        height="300"
-        style="border: 0"
-        allowfullscreen=""
-        aria-hidden="false"
-        tabindex="0"
-      ></iframe>
+        height="300" style="border: 0" allowfullscreen="" aria-hidden="false" tabindex="0"></iframe>
     </div>
   </div>
   <!-- Map End -->
@@ -226,9 +197,6 @@ export default {
     prevBanner() {
       this.current =
         (this.current - 1 + this.heroImages.length) % this.heroImages.length;
-    },
-    getImageByIcon(icon) {
-        return `/img/categories/${icon}.png`; 
     },
   },
 };

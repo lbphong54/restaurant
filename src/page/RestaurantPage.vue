@@ -6,11 +6,7 @@
           <div class="col-md-4">
             <select v-model="selectedType" class="form-select custom-select">
               <option value="">Tất cả loại</option>
-              <option
-                v-for="type in restaurantTypes"
-                :key="type.id"
-                :value="type.name"
-              >
+              <option v-for="type in restaurantTypes" :key="type.id" :value="type.name">
                 {{ type.name }}
               </option>
             </select>
@@ -34,18 +30,11 @@
       </form>
 
       <div v-if="loading" class="text-center my-5">Đang tải dữ liệu...</div>
-
       <div v-else class="row">
-        <div
-          class="col-lg-3 col-md-6 col-sm-6"
-          v-for="item in restaurants"
-          :key="item.id"
-        >
+        <div class="col-lg-3 col-md-6 col-sm-6" v-for="item in restaurants" :key="item.id">
           <div class="product__item">
-            <div
-              class="product__item__pic set-bg"
-              :data-setbg="item.image || 'img/shop/product-1.jpg'"
-            >
+            <div class="product__item__pic"
+              :style="{ backgroundImage: `url(${item.avatar || '/img/shop/product-1.jpg'})` }">
               <div class="product__label">
                 <span>{{ item.name }}</span>
               </div>
@@ -59,10 +48,7 @@
                 {{ item.price_range ? `$${item.price_range}` : "" }}
               </div>
               <div class="cart_add">
-                <router-link
-                  :to="`/restaurantdetail/${item.id}`"
-                  class="add-to-cart"
-                >
+                <router-link :to="`/restaurantdetail/${item.id}`" class="add-to-cart">
                   Đặt bàn
                 </router-link>
               </div>

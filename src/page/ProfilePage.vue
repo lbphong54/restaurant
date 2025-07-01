@@ -31,14 +31,6 @@
     </section>
 
     <section class="expenses">
-      <h3>Quản lý chi tiêu</h3>
-      <form @submit.prevent="addExpense">
-        <input v-model="newExpense.description" placeholder="Mô tả" required />
-        <input v-model.number="newExpense.amount" type="number" placeholder="Số tiền" required />
-        <input v-model="newExpense.date" type="date" required />
-        <button>Thêm</button>
-      </form>
-
       <ul>
         <li v-for="(expense, index) in expenses" :key="index">
           <span>{{ expense.date }} – {{ expense.description }}:</span>

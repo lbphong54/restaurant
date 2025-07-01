@@ -84,6 +84,7 @@ export default {
         if (this.isSubmitting) return;
         this.isSubmitting = true;
         const token = localStorage.getItem('token');
+        console.log("🚀 ~ submitBooking ~ token:", token)
         if (!token) {
           this.error = 'Bạn chưa đăng nhập!';
           this.message = '';
@@ -178,7 +179,7 @@ textarea,
 }
 
 button {
-  background: #e67c1b;
+  background: linear-gradient(to right, #009688, #e67c1b);
   color: white;
   padding: 10px;
   border: none;

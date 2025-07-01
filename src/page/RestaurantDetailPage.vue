@@ -5,47 +5,11 @@
         <div class="col-lg-6">
           <div class="product__details__img">
             <div class="product__details__big__img">
-              <img
-                class="big_img"
-                src="img/shop/details/product-big-1.jpg"
-                alt=""
-              />
+              <img class="big_img" :src="restaurant.avatar ? restaurant.avatar : '/default.jpg'" alt="Ảnh nhà hàng" />
             </div>
             <div class="product__details__thumb">
-              <div class="pt__item active">
-                <img
-                  data-imgbigurl="img/shop/details/product-big-2.jpg"
-                  src="img/shop/details/product-big-2.jpg"
-                  alt=""
-                />
-              </div>
-              <div class="pt__item">
-                <img
-                  data-imgbigurl="img/shop/details/product-big-1.jpg"
-                  src="img/shop/details/product-big-1.jpg"
-                  alt=""
-                />
-              </div>
-              <div class="pt__item">
-                <img
-                  data-imgbigurl="img/shop/details/product-big-4.jpg"
-                  src="img/shop/details/product-big-4.jpg"
-                  alt=""
-                />
-              </div>
-              <div class="pt__item">
-                <img
-                  data-imgbigurl="img/shop/details/product-big-3.jpg"
-                  src="img/shop/details/product-big-3.jpg"
-                  alt=""
-                />
-              </div>
-              <div class="pt__item">
-                <img
-                  data-imgbigurl="img/shop/details/product-big-5.jpg"
-                  src="img/shop/details/product-big-5.jpg"
-                  alt=""
-                />
+              <div class="pt__item active"
+                :style="{ backgroundImage: `url(${restaurant.avatar || '/img/shop/product-1.jpg'})` }">
               </div>
             </div>
           </div>
@@ -64,15 +28,13 @@
                 Điện thoại: <span>{{ restaurant.phone }}</span>
               </li>
             </ul>
+
             <div class="product__details__option">
               <div class="quantity"></div>
-              <router-link
-                class="primary-btn"
-                :to="{
+              <router-link class="primary-btn" :to="{
                   path: '/reservation',
                   query: { restaurant_id: restaurant.id },
-                }"
-              >
+                }">
                 Đặt bàn
               </router-link>
             </div>
@@ -83,22 +45,34 @@
         <div class="col-lg-12">
           <ul class="nav nav-tabs" role="tablist">
             <li class="nav-item">
-              <a
-                class="nav-link active"
-                data-toggle="tab"
-                href="#tabs-1"
-                role="tab"
-                >Description</a
-              >
+              <a class="nav-link" :class="{ active: activeTab === 'description' }"
+                @click.prevent="activeTab = 'description'" href="#" role="tab">Description</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" :class="{ active: activeTab === 'menu' }" @click.prevent="activeTab = 'menu'" href="#"
+                role="tab">Menu</a>
             </li>
           </ul>
+
           <div class="tab-content">
-            <div class="tab-pane active" id="tabs-1" role="tabpanel">
+            <!-- Description Tab -->
+            <div class="tab-pane fade" :class="{ 'show active': activeTab === 'description' }" id="tabs-1"
+              role="tabpanel">
               <div class="row d-flex justify-content-center">
                 <div class="col-lg-8">
                   <p>{{ restaurant.description || "Không có mô tả." }}</p>
                 </div>
               </div>
+            </div>
+
+            <!-- Menu Tab -->
+            <div class="tab-pane fade" :class="{ 'show active': activeTab === 'menu' }" id="tabs-2" role="tabpanel">
+              <div v-if="restaurant.menu_images && restaurant.menu_images.length">
+                <div v-for="(img, index) in restaurant.menu_images" :key="index" class="mb-4">
+                  <img :src="getMenuImage(img)" alt="Ảnh thực đơn" class="menu-img img-fluid rounded shadow" />
+                </div>
+              </div>
+              <p v-else>Không có ảnh thực đơn.</p>
             </div>
           </div>
         </div>
@@ -113,20 +87,14 @@
     <!-- Đánh giá từng cái một -->
     <div v-if="loadingReviews" class="text-center">Đang tải đánh giá...</div>
     <template v-else>
-      <div
-        v-if="reviews.length > 0"
-        class="d-flex flex-wrap justify-content-center"
-      >
+      <div v-if="reviews.length > 0" class="d-flex flex-wrap justify-content-center">
         <div class="col-lg-6 mb-4" v-for="review in reviews" :key="review.id">
           <div class="testimonial__item">
             <div class="testimonial__author">
               <div class="testimonial__author__pic">
-                <img
-                  :src="
+                <img :src="
                     review.customer.avatar || '/img/testimonial/default.jpg'
-                  "
-                  alt="Avatar"
-                />
+                  " alt="Avatar" />
               </div>
               <div class="testimonial__author__text">
                 <h5>{{ review.customer.full_name }}</h5>
@@ -134,21 +102,14 @@
             </div>
 
             <div class="rating">
-              <span
-                v-for="n in Math.floor(review.rating)"
-                :key="n"
-                class="icon_star"
-              ></span>
-              <span
-                v-if="review.rating % 1 >= 0.5"
-                class="icon_star-half_alt"
-              ></span>
+              <span v-for="n in Math.floor(review.rating)" :key="n" class="icon_star"></span>
+              <span v-if="review.rating % 1 >= 0.5" class="icon_star-half_alt"></span>
             </div>
 
             <p>{{ review.comment }}</p>
             <small class="d-block mt-2 text-muted">{{
               new Date(review.created_at).toLocaleString()
-            }}</small>
+              }}</small>
           </div>
         </div>
       </div>
@@ -157,17 +118,11 @@
 
       <!-- Phân trang -->
       <div class="col-12 mt-3" v-if="reviewsPagination.last_page > 1">
-  <nav class="review-pagination d-flex justify-content-center flex-wrap gap-2">
-    <button
-      v-for="link in reviewsPagination.links"
-      :key="link.label"
-      :disabled="!link.url"
-      v-html="link.label"
-      @click="changeReviewPage(extractPage(link.url))"
-      :class="['btn-page', { active: link.active }]"
-    ></button>
-  </nav>
-</div>
+        <nav class="review-pagination d-flex justify-content-center flex-wrap gap-2">
+          <button v-for="link in reviewsPagination.links" :key="link.label" :disabled="!link.url" v-html="link.label"
+            @click="changeReviewPage(extractPage(link.url))" :class="['btn-page', { active: link.active }]"></button>
+        </nav>
+      </div>
     </template>
 
     <!-- Form viết đánh giá -->
@@ -186,7 +141,7 @@
       <em>Bạn cần đăng nhập để gửi đánh giá.</em>
     </div>
   </div>
-  <!-- Related Products Section Begin -->
+  <!-- Related -->
   <section class="related-products spad">
     <div class="container">
       <div class="row">
@@ -199,10 +154,7 @@
       <div class="row">
         <div class="col-lg-3" v-for="item in relatedRestaurants" :key="item.id">
           <div class="product__item">
-            <div
-              class="product__item__pic set-bg"
-              :data-setbg="item.image || 'img/shop/product-1.jpg'"
-            >
+            <div class="product__item__pic" :style="{ backgroundImage: `url(${getRestaurantImage(item.avatar)})` }">
               <div class="product__label">
                 <span>{{ item.name }}</span>
               </div>
@@ -211,15 +163,11 @@
               <h6>
                 <router-link :to="`/restaurantdetail/${item.id}`">{{
                   item.name
-                }}</router-link>
+                  }}</router-link>
               </h6>
               <div class="product__item__price">{{ item.price_range }}</div>
               <div class="cart_add">
-                <router-link
-                  :to="`/restaurantdetail/${item.id}`"
-                  class="add-to-cart"
-                  >Đặt bàn</router-link
-                >
+                <router-link :to="`/restaurantdetail/${item.id}`" class="add-to-cart">Đặt bàn</router-link>
               </div>
             </div>
           </div>
@@ -240,6 +188,7 @@ export default {
     return {
       restaurant: null,
       loading: true,
+      activeTab: 'description',
       relatedRestaurants: [],
       rating: "",
       comment: "",
@@ -425,6 +374,19 @@ export default {
       const match = url.match(/page=(\d+)/);
       return match ? parseInt(match[1]) : null;
     },
+
+      getRestaurantImage(avatar) {
+      if (Array.isArray(avatar)) avatar = avatar[0];
+      if (!avatar) return '/img/shop/product-1.jpg';
+      return avatar;
+    },
+
+    getMenuImage(menu) {
+      if (Array.isArray(menu)) menu = menu[0];
+      if (!menu) return '/img/shop/product-1.jpg';
+      return menu;
+    }
+
   },
 };
 </script>
@@ -648,6 +610,40 @@ select {
 .review-form .primary-btn:hover {
   background: linear-gradient(to right, #00796b, #cf6c14);
   transform: translateY(-1px);
+}
+
+.product__item__pic {
+  width: 100%;
+  height: 220px;
+  /* hoặc chiều cao bạn muốn */
+  background-size: cover;
+  background-position: center;
+  border-radius: 12px;
+  background-color: #f6f6f6;
+}
+
+img {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.menu-row {
+  display: flex;
+  justify-content: center;
+  /* Căn giữa các hình */
+  gap: 16px;
+  /* Khoảng cách giữa các hình */
+  flex-wrap: wrap;
+  /* Đảm bảo không bị tràn nếu màn hình nhỏ */
+}
+
+.menu-img {
+  width: 45%;
+  /* Hoặc đặt kích thước cố định như 300px */
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 </style>
