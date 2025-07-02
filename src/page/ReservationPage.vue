@@ -84,7 +84,6 @@ export default {
         if (this.isSubmitting) return;
         this.isSubmitting = true;
         const token = localStorage.getItem('token');
-        console.log("🚀 ~ submitBooking ~ token:", token)
         if (!token) {
           this.error = 'Bạn chưa đăng nhập!';
           this.message = '';

@@ -20,21 +20,52 @@ export default {
     },
     data() {
         return {
+            reservationId: null,
             qrData: {
-                bank_code: 970415,
-                bank_account: '113366668888',
-                message: 'Gửi nè',
-                amount: 1000000,
+                bank_code: '',
+                bank_account: '',
+                message: '',
+                amount: 0,
             }
         };
+    },
+    async mounted() {
+        this.reservationId = this.$route.query.reservation_id;
+
+        // Kiểm tra token
+        const token = localStorage.getItem('token');
+        if (!token) {
+            this.error = 'Bạn chưa đăng nhập!';
+            this.message = '';
+            return;
+        }
+
+        try {
+            // Gọi API (dùng template string ES6)
+            const res = await axios.get(
+                `http://localhost:8000/api/reservations/${this.reservationId}/qr-code`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
+            console.log("🚀 ~ mounted ~ res:", res)
+
+            this.qrData.bank_code = res.data.data.bank_code;
+            this.qrData.bank_account = res.data.data.bank_account_number;
+            this.qrData.message = `Thanh toán tiền đặt cọc - ${res.data.data.restaurant} - đơn hàng ${this.reservationId}`;
+            this.qrData.amount = res.data.data.amount;
+
+        } catch (err) {
+            this.error = 'Lỗi khi lấy QR code!';
+            // Có thể log err.response hoặc err.message để debug
+        }
     },
     computed: {
         qrValue() {
             if (!this.qrData) return '';
-            // const base = `https://img.vietqr.io/image/${this.qrData.bank_code}-${this.qrData.bank_account}-compact2.png`
             const base = `https://api.vietqr.io/image/${this.qrData.bank_code}-${this.qrData.bank_account}-CXvgYDX.jpg`;
-            // return `STK:${this.qrData.bank_account};ND:${this.qrData.message};SOTIEN:${this.qrData.amount}`;
-            console.log("🚀 ~ qrValue ~ base:", base)
             const params = []
             if (this.qrData.amount) params.push(`amount=${this.qrData.amount}`)
             if (this.qrData.message) params.push(`addInfo=${encodeURIComponent(this.qrData.message)}`)
@@ -42,38 +73,8 @@ export default {
         }
     },
     methods: {
-        async submitBooking() {
-            try {
-                const token = localStorage.getItem('token');
-                const restaurant_id = this.$route.query.restaurant_id || 1;
-
-                const res = await axios.post(
-                    'http://localhost:8000/api/reservations',
-                    {
-                        restaurant_id: restaurant_id,
-                        reservation_time: this.booking_time,
-                        adults: this.people,
-                        children: this.children,
-                        special_request: this.note
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
-                );
-
-                this.message = res.data.message;
-                this.qrData = res.data.qr;
-                this.error = '';
-            } catch (err) {
-                this.error = 'Đặt bàn thất bại. Vui lòng thử lại.';
-                this.message = '';
-            }
-        },
-
         confirmDeposit() {
-            this.$router.push({ name: 'home' }); // hoặc { path: '/' } nếu route name là Home
+            this.$router.push({ name: 'home' });
         }
 
     }

@@ -6,19 +6,15 @@
           <div class="col-md-4">
             <select v-model="selectedType" class="form-select custom-select">
               <option value="">Tất cả loại</option>
-              <option v-for="type in restaurantTypes" :key="type.id" :value="type.name">
+              <option v-for="type in restaurantTypes" :key="type.id" :value="type.id">
                 {{ type.name }}
               </option>
             </select>
           </div>
 
           <div class="col-md-4">
-            <select v-model="selectedAddress" class="form-select custom-select">
-              <option value="">Tất cả địa chỉ</option>
-              <option v-for="addr in addressList" :key="addr" :value="addr">
-                {{ addr }}
-              </option>
-            </select>
+            <input v-model="searchKeyword" type="text" class="form-control"
+              placeholder="Nhập địa chỉ hoặc tên nhà hàng..." />
           </div>
 
           <div class="col-md-4 text-md-start text-center">
@@ -78,13 +74,18 @@ export default {
   },
 
   mounted() {
-    const restaurants_types = this.$route.query.restaurants_types;
+    const type_id = this.$route.query.restaurants_types;
+
+    const params = {};
+
+    if (type_id) {
+      params.type_id = type_id;
+    }
+
     // Gọi API restaurants với tham số lọc theo loại
     axios
       .get("http://localhost:8000/api/restaurants", {
-        params: {
-          restaurants_types, // truyền tham số lọc
-        },
+        params
       })
       .then((res) => {
         console.log("Dữ liệu trả về:", res.data);
@@ -97,7 +98,6 @@ export default {
         this.loading = false;
       });
     this.loadRestaurantTypes();
-    this.searchRestaurants();
   },
 
   beforeUnmount() {
@@ -117,12 +117,19 @@ export default {
 
     async searchRestaurants() {
       this.loading = true;
+      const params = {};
+
+      if (this.selectedType) {
+        params.type_id = this.selectedType;
+      }
+
+      if (this.searchKeyword) {
+        params.search = this.searchKeyword;
+      }
+
       try {
         const res = await axios.get("http://localhost:8000/api/restaurants", {
-          params: {
-            restaurants_types: this.selectedType,
-            search: this.searchKeyword,
-          },
+          params,
         });
         this.restaurants = res.data.data.data || [];
       } catch (err) {
@@ -157,5 +164,4 @@ export default {
   background: linear-gradient(to right, #00796b, #cf6c14);
   transform: translateY(-1px);
 }
-
 </style>

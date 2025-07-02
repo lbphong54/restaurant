@@ -179,7 +179,7 @@ export default {
     goToCategory(cat) {
       this.$router.push({
         name: "RestaurantPage",
-        query: { restaurants_types: cat.name },
+        query: { restaurants_types: cat.id },
       });
     },
     startAuto() {
