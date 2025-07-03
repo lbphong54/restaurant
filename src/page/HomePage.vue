@@ -6,9 +6,10 @@
         <div class="container">
           <div class="row d-flex justify-content-center">
             <div class="col-lg-8">
-              <div class="hero__text">
+              <div class="">
+
                 <h2>{{ img }}</h2>
-                <a href="#" class="primary-btn">Our cakes</a>
+                
               </div>
             </div>
           </div>

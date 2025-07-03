@@ -4,20 +4,21 @@
             <h4>Mã QR đặt cọc</h4>
             <img :src="qrValue" alt="Mã QR chuyển khoản" style="width:200px;height:200px;" />
             <p><strong>Nội dung:</strong> {{ qrData.message }}</p>
-            <p><strong>Số tiền:</strong> {{ qrData.amount.toLocaleString() }} VND</p>
-            <p><strong>Số tài khoản:</strong> {{ qrData.bank_account }}</p>
+            <p><strong>Số tiền:</strong> {{ qrData.amount ? qrData.amount.toLocaleString() : '' }} VND</p>
+            <p><strong>Số tài khoản:</strong> {{ qrData.bank_account_number }}</p>
             <button class="confirm-btn" @click="confirmDeposit">Xác nhận đặt cọc</button>
         </div>
+        <div v-else>
+            Đang tải dữ liệu...
+        </div>
+        <div v-if="error" style="color:red">{{ error }}</div>
     </div>
 </template>
 
 <script>
-// import QrcodeVue from 'qrcode.vue';
 import axios from 'axios';
 
 export default {
-    components: {
-    },
     data() {
         return {
             reservationId: null,
@@ -64,6 +65,7 @@ export default {
     },
     computed: {
         qrValue() {
+            // Giả sử bạn dùng vietqr.io dạng ảnh, tham khảo docs vietqr.io
             if (!this.qrData) return '';
             const base = `https://api.vietqr.io/image/${this.qrData.bank_code}-${this.qrData.bank_account}-CXvgYDX.jpg`;
             const params = []
@@ -72,11 +74,14 @@ export default {
             return params.length ? `${base}?${params.join('&')}` : base
         }
     },
+    mounted() {
+        this.fetchQrData();
+    },
     methods: {
         confirmDeposit() {
             this.$router.push({ name: 'home' });
+            this.$router.push({ name: 'home' });
         }
-
     }
 };
 </script>

@@ -13,7 +13,8 @@
           <tr>
             <th class="px-4 py-2 border border-gray-300">STT</th>
             <th class="px-4 py-2 border border-gray-300">Nhà hàng</th>
-            <th class="px-4 py-2 border border-gray-300">Thời gian</th>
+            <th class="px-4 py-2 border border-gray-300">Thời gian đặt</th>
+            <th class="px-4 py-2 border border-gray-300">Thời gian tạo</th>
             <th class="px-4 py-2 border border-gray-300">Người lớn</th>
             <th class="px-4 py-2 border border-gray-300">Trẻ em</th>
             <th class="px-4 py-2 border border-gray-300">Ghi chú</th>
@@ -31,6 +32,9 @@
               {{
               formatDate(res.reservation_time || res.datetime || res.datime)
               }}
+            </td>
+            <td class="px-4 py-2 border border-gray-300">
+              {{ formatDate(res.created_at) }}
             </td>
             <td class="px-4 py-2 border border-gray-300">
               {{ res.num_adults ?? "—" }}
@@ -59,6 +63,30 @@
         </tbody>
       </table>
     </div>
+
+    <div class="profile-left">
+      <section class="info">
+        <h3>Thông tin cá nhân</h3>
+        <p><strong>Họ tên:</strong> {{ user.full_name }}</p>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Điện thoại:</strong> {{ user.phone }}</p>
+      </section>
+
+      <section class="profile">
+        <h3>Thống kê chi tiêu</h3>
+        <div class="spending-box">
+          <label for="month">Chọn tháng:</label>
+          <select id="month" v-model="selectedMonth">
+            <option v-for="m in 12" :value="m" :key="m">Tháng {{ m }}</option>
+          </select>
+          <p>
+            <strong>Tháng {{ selectedMonth }}:</strong>
+            {{ getSpending(selectedMonth).toLocaleString() }} VND –
+            {{ getReservations(selectedMonth) }} lượt đặt bàn
+          </p>
+        </div>
+      </section>
+    </div>
   </div>
 </template>
 
@@ -72,6 +100,46 @@ export default {
       cancelingId: null,
       reservations: [],
       loading: true,
+      reservationData: {
+        1: 2,
+        2: 5,
+        3: 3,
+        4: 4,
+        5: 6,
+        6: 7, // tháng hiện tại
+        7: 0,
+        8: 0,
+        9: 0,
+        10: 0,
+        11: 0,
+        12: 0,
+      },
+      selectedMonth: new Date().getMonth() + 1, // Tháng hiện tại
+      spendingData: {
+        1: 1500000,
+        2: 2200000,
+        3: 3100000,
+        4: 1800000,
+        5: 2700000,
+        6: 3300000, // tháng hiện tại
+        7: 0,
+        8: 0,
+        9: 0,
+        10: 0,
+        11: 0,
+        12: 0,
+      },
+      user: {
+        full_name: "",
+        email: "",
+        phone: "",
+      },
+      expenses: [], // {description, amount, date}
+      newExpense: {
+        description: "",
+        amount: 0,
+        date: "",
+      },
     };
   },
   mounted() {
@@ -146,7 +214,13 @@ export default {
       } finally {
         this.cancelingId = null;
       }
-    }
+    },
+    getSpending(month) {
+      return this.spendingData[month] || 0;
+    },
+    getReservations(month) {
+      return this.reservationData[month] || 0;
+    },
   },
   
   computed: {
@@ -154,6 +228,29 @@ export default {
       if (!Array.isArray(this.reservations)) return [];
       return this.reservations.filter((r) => r !== null && r !== undefined);
     },
+    currentMonth() {
+      return new Date().getMonth() + 1;
+    },
+    currentYear() {
+      return new Date().getFullYear();
+    },
+    totalThisMonth() {
+      const month = this.currentMonth;
+      const year = this.currentYear;
+      return this.expenses
+        .filter((e) => {
+          const d = new Date(e.date);
+          return d.getMonth() + 1 === month && d.getFullYear() === year;
+        })
+        .reduce((sum, e) => sum + e.amount, 0);
+    },
+    totalReservationThisMonth() {
+      const month = this.currentMonth;
+      return this.expenses.filter((e) => {
+        const d = new Date(e.date);
+        return d.getMonth() + 1 === month;
+      }).length;
+    }
   },
 };
 </script>
@@ -185,4 +282,40 @@ export default {
   transform: translateY(-2px);
 }
 
+table tr:hover {
+  background-color: #f9fafb;
+  transition: background 0.3s ease;
+}
+
+th {
+  font-weight: 600;
+}
+
+td,
+th {
+  border: 1px solid #e5e7eb;
+  /* mềm mại hơn #ccc */
+  padding: 12px 16px;
+}
+
+.profile-left {
+  margin-top: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.info,
+.profile {
+  background: #f8fafc;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.info h3,
+.profile h3 {
+  font-size: 18px;
+  margin-bottom: 0.75rem;
+}
 </style>

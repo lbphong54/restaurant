@@ -12,8 +12,8 @@ import RestaurantPage from '../page/RestaurantPage.vue';
 import ReservationPage from "../page/ReservationPage.vue";
 import HistoryPage from "../page/HistoryPage.vue";
 import QrPage from "../page/QrPage.vue";
-import ProfilePage from "../page/ProfilePage.vue";
 import OtpPage from "../page/OtpPage.vue";
+
 const routes = [
     {
         path: "/",
@@ -73,11 +73,6 @@ const routes = [
                 path: 'qrpay',
                 name: 'qrpay',
                 component: QrPage,
-            },
-            {
-                path: 'profile',
-                name: 'profile',
-                component: ProfilePage,
             },
             {
                 path: 'otp',

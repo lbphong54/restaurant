@@ -7,6 +7,7 @@
             <select v-model="selectedType" class="form-select custom-select">
               <option value="">Tất cả loại</option>
               <option v-for="type in restaurantTypes" :key="type.id" :value="type.id">
+              <option v-for="type in restaurantTypes" :key="type.id" :value="type.id">
                 {{ type.name }}
               </option>
             </select>
@@ -65,9 +66,9 @@ import axios from "axios";
 export default {
   data() {
     return {
+      restaurantTypes: [],
       restaurants: [],
       loading: true,
-      restaurantTypes: [],
       selectedType: "",
       searchKeyword: "",
     };
@@ -100,19 +101,32 @@ export default {
     this.loadRestaurantTypes();
   },
 
-  beforeUnmount() {
-    clearInterval(this.timer);
-  },
   methods: {
     async loadRestaurantTypes() {
       try {
-        const res = await axios.get(
-          "http://localhost:8000/api/restaurant-types"
-        );
+        const res = await axios.get("http://localhost:8000/api/restaurant-types");
         this.restaurantTypes = res.data.data || [];
       } catch (err) {
-        console.error("Không thể tải loại nhà hàng:", err);
+        console.error("Lỗi khi lấy loại nhà hàng:", err);
+        this.restaurantTypes = [];
       }
+    },
+
+    fetchRestaurants() {
+      this.loading = true;
+      const types = this.selectedType || "";
+      axios.get('http://localhost:8000/api/restaurants', {
+        params: { types }
+      })
+        .then(res => {
+          this.restaurants = res.data.data.data || [];
+        })
+        .catch(() => {
+          this.restaurants = [];
+        })
+        .finally(() => {
+          this.loading = false;
+        });
     },
 
     async searchRestaurants() {
@@ -133,13 +147,21 @@ export default {
         });
         this.restaurants = res.data.data.data || [];
       } catch (err) {
-        console.error("Lỗi khi tìm nhà hàng:", err);
         this.restaurants = [];
       } finally {
         this.loading = false;
       }
     },
   },
+
+  watch: {
+    'selectedType': 'fetchRestaurants',
+    // Nếu bạn muốn auto-fetch khi route thay đổi:
+    '$route.query.types': function (newType) {
+      this.selectedType = newType;
+      this.fetchRestaurants();
+    }
+  }
 };
 </script>
 

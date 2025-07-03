@@ -28,7 +28,6 @@
                       <template v-if="userName">
 
                         <router-link class="option-link" to="/history">Đơn đặt bàn</router-link>
-                        <router-link class="option-link" to="/profile">Thống kê</router-link>
                         <button class="option-link" @click="logout">Đăng xuất</button>
                       </template>
                       <template v-else>
