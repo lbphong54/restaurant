@@ -51,7 +51,6 @@ export default {
                     },
                 }
             );
-            console.log("🚀 ~ mounted ~ res:", res)
 
             this.qrData.bank_code = res.data.data.bank_code;
             this.qrData.bank_account = res.data.data.bank_account_number;
@@ -73,9 +72,6 @@ export default {
             if (this.qrData.message) params.push(`addInfo=${encodeURIComponent(this.qrData.message)}`)
             return params.length ? `${base}?${params.join('&')}` : base
         }
-    },
-    mounted() {
-        this.fetchQrData();
     },
     methods: {
         confirmDeposit() {

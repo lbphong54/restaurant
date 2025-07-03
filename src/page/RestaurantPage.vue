@@ -7,7 +7,6 @@
             <select v-model="selectedType" class="form-select custom-select">
               <option value="">Tất cả loại</option>
               <option v-for="type in restaurantTypes" :key="type.id" :value="type.id">
-              <option v-for="type in restaurantTypes" :key="type.id" :value="type.id">
                 {{ type.name }}
               </option>
             </select>
