@@ -2,7 +2,7 @@
   <section class="product-details spad" v-if="restaurant">
     <div class="container">
       <div class="row">
-        <div class="col-lg-6">
+        <div class="col-lg-8">
           <div class="product__details__img">
             <div class="product__details__big__img">
               <img class="big_img" :src="restaurant.avatar ? restaurant.avatar : '/default.jpg'" alt="Ảnh nhà hàng" />
@@ -14,7 +14,7 @@
             </div>
           </div>
         </div>
-        <div class="col-lg-6">
+        <div class="col-lg-4">
           <div class="product__details__text">
             <div class="product__label">Cupcake</div>
             <h4>{{ restaurant.name }}</h4>
@@ -30,13 +30,58 @@
             </ul>
 
             <div class="product__details__option">
-              <div class="quantity"></div>
-              <router-link class="primary-btn" :to="{
-                  path: '/reservation',
-                  query: { restaurant_id: restaurant.id },
-                }">
+              <!-- Số lượng người lớn -->
+              <div class="quantity">
+                <label for="adults">Người lớn:</label>
+                <input type="number" id="adults" v-model="adults" min="1" placeholder="Số lượng người lớn" />
+              </div>
+
+              <!-- Số lượng trẻ em -->
+              <div class="quantity">
+                <label for="children">Trẻ em:</label>
+                <input type="number" id="children" v-model="children" min="0" placeholder="Số lượng trẻ em" />
+              </div>
+
+              <div class="quantity">
+                <label for="date">Chọn ngày:</label>
+                <input type="date" id="date" v-model="selectedDate" :min="minDate" @change="onDateTimeChange" />
+              </div>
+
+              <div class="quantity">
+                <label for="time">Chọn giờ:</label>
+                <select id="time" v-model="selectedTime" @change="onDateTimeChange">
+                  <option v-for="time in timeOptions" :key="time" :value="time">
+                    {{ time }}
+                  </option>
+                </select>
+              </div>
+
+              <!-- Multiselect chọn bàn -->
+              <div class="table-map">
+                <div v-for="table in availableTables" :key="table.id"
+                  :class="['table-item', { selected: isSelected(table) }]" @click="toggleTable(table)">
+                  {{ table.name }}
+                  <br>
+                  <span class="table-number">(👤{{ table.max_capacity }})</span>
+                </div>
+              </div>
+
+              <!-- Nút Đặt bàn -->
+              <!-- <router-link class="primary-btn" :to="{
+                path: '/reservation',
+                query: {
+                  restaurant_id: restaurant.id,
+                  adults: adults,
+                  children: children,
+                  time: selectedDate + 'T' + selectedTime,
+                  tables: selectedTableIds.join(','),
+                },
+              }">
                 Đặt bàn
-              </router-link>
+              </router-link> -->
+              <button class="primary-btn" @click="handleReservation">
+                Đặt bàn
+              </button>
             </div>
           </div>
         </div>
@@ -92,8 +137,7 @@
           <div class="testimonial__item">
             <div class="testimonial__author">
               <div class="testimonial__author__pic">
-                <img :src="
-                    review.customer.avatar || '/img/testimonial/default.jpg'
+                <img :src="review.customer.avatar || '/img/testimonial/default.jpg'
                   " alt="Avatar" />
               </div>
               <div class="testimonial__author__text">
@@ -109,7 +153,7 @@
             <p>{{ review.comment }}</p>
             <small class="d-block mt-2 text-muted">{{
               new Date(review.created_at).toLocaleString()
-              }}</small>
+            }}</small>
           </div>
         </div>
       </div>
@@ -163,7 +207,7 @@
               <h6>
                 <router-link :to="`/restaurantdetail/${item.id}`">{{
                   item.name
-                  }}</router-link>
+                }}</router-link>
               </h6>
               <div class="product__item__price">{{ item.price_range }}</div>
               <div class="cart_add">
@@ -205,6 +249,15 @@ export default {
         links: [],
       },
       loadingReviews: false,
+      selectedTime: "",
+      timeOptions: [],
+      selectedDate: "",
+      minDate: "",
+      availableTables: [],
+      selectedTables: [],
+      selectedTableIds: [],
+      adults: 1,
+      children: 0,
     };
   },
   setup() {
@@ -262,9 +315,88 @@ export default {
     if (this.restaurantId) {
       await this.fetchReviews(1);
     }
+    this.generateTimeOptions();
+
+    const today = new Date();
+    const formattedToday = today.toISOString().split("T")[0];
+    this.minDate = formattedToday;
+    this.selectedDate = formattedToday; // chọn mặc định là hôm nay
+    this.generateTimeOptions();
   },
 
   methods: {
+    handleReservation() {
+      if (!this.checkEnoughSeats()) {
+        alert("Bạn cần chọn đủ bàn cho số lượng khách.");
+        return;
+      }
+
+      const reservationQuery = {
+        restaurant_id: this.restaurant.id,
+        adults: this.adults,
+        children: this.children,
+        time: this.selectedDate + 'T' + this.selectedTime,
+        tables: this.selectedTableIds.join(','),
+      };
+
+      // Tạo query string
+      const queryString = new URLSearchParams(reservationQuery).toString();
+
+      const token = localStorage.getItem("token");
+      if (!token) {
+        // Chuyển sang login và nhớ trang hiện tại
+        this.$router.push({
+          path: '/login',
+          query: { redirect: `/reservation?${queryString}` },
+        });
+        return;
+      }
+
+      const sessionCode = Math.random().toString(36).substr(2, 9);
+      const expiredTime = new Date(Date.now() + 5 * 60 * 1000);
+      localStorage.setItem(`booking_session_${sessionCode}`, expiredTime);
+      this.$router.push({
+        path: '/reservation',
+        query: {
+          restaurant_id: this.restaurant.id,
+          adults: this.adults,
+          children: this.children,
+          time: this.selectedDate + 'T' + this.selectedTime,
+          tables: this.selectedTableIds.join(','),
+          session_code: sessionCode,
+        },
+      });
+    },
+    checkEnoughSeats() {
+      const totalPeople = Number(this.adults) + Number(this.children);
+      const selectedSeats = this.selectedTables.reduce((sum, table) => sum + table.max_capacity, 0);
+      return selectedSeats >= totalPeople;
+    },
+    toggleTable(table) {
+      const totalPeople = Number(this.adults) + Number(this.children);
+      const currentSeats = this.selectedTables.reduce((sum, t) => sum + t.max_capacity, 0);
+      const isSelected = this.isSelected(table);
+
+      if (isSelected) {
+        // Bỏ chọn bàn
+        this.selectedTables = this.selectedTables.filter(t => t.id !== table.id);
+      } else {
+        if (currentSeats > totalPeople) {
+          alert("Bạn đã chọn đủ chỗ ngồi cho số lượng khách.");
+          return;
+        }
+        this.selectedTables.push(table);
+        this.selectedTableIds.push(table.id);
+      }
+    },
+    isSelected(table) {
+      return this.selectedTables.some(t => t.id === table.id);
+    },
+    onDateTimeChange() {
+      if (this.selectedDate && this.selectedTime) {
+        this.fetchAvailableTables();
+      }
+    },
     async fetchReviews(page = 1) {
       this.loadingReviews = true;
       try {
@@ -375,7 +507,7 @@ export default {
       return match ? parseInt(match[1]) : null;
     },
 
-      getRestaurantImage(avatar) {
+    getRestaurantImage(avatar) {
       if (Array.isArray(avatar)) avatar = avatar[0];
       if (!avatar) return '/img/shop/product-1.jpg';
       return avatar;
@@ -385,8 +517,43 @@ export default {
       if (Array.isArray(menu)) menu = menu[0];
       if (!menu) return '/img/shop/product-1.jpg';
       return menu;
-    }
+    },
 
+    generateTimeOptions() {
+      const now = new Date();
+      let start = now.getHours() * 60 + now.getMinutes();
+      start = Math.ceil(start / 30) * 30; // làm tròn lên 30 phút
+      const end = 23 * 60;  // phút, 23:00
+      const interval = 30;  // phút
+
+      const options = [];
+      for (let minutes = start; minutes <= end; minutes += interval) {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        const label = `${hours}:${mins === 0 ? "00" : mins}`;
+        options.push(label);
+      }
+      this.timeOptions = options;
+    },
+
+    async fetchAvailableTables() {
+      if (!this.selectedDate || !this.selectedTime) {
+        alert("Vui lòng chọn ngày và giờ trước!");
+        return;
+      }
+
+      const timeParam = `${this.selectedDate} ${this.selectedTime}`;
+
+      try {
+        const res = await axios.get("http://localhost:8000/api/restaurants-table", {
+          params: { time: timeParam, id: this.restaurantId },
+        });
+        this.availableTables = res.data;
+      } catch (err) {
+        console.error("Lỗi khi lấy danh sách bàn:", err);
+        alert("Lấy danh sách bàn thất bại.");
+      }
+    },
   },
 };
 </script>
@@ -646,4 +813,87 @@ img {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
+.product__details__option {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: #fdfdfd;
+  border: 1px solid #eee;
+  border-radius: 12px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+}
+
+.product__details__option .quantity {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.product__details__option label {
+  font-weight: 600;
+  color: #444;
+  font-size: 15px;
+}
+
+.product__details__option input[type="number"],
+.product__details__option input[type="date"],
+.product__details__option select {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 15px;
+  width: 100%;
+  transition: border-color 0.3s ease, box-shadow 0.2s ease;
+}
+
+.product__details__option input[type="number"]:focus,
+.product__details__option input[type="date"]:focus,
+.product__details__option select:focus {
+  border-color: #009688;
+  box-shadow: 0 0 0 3px rgba(0, 150, 136, 0.15);
+  outline: none;
+}
+
+/* Style cho select multiple */
+.product__details__option select[multiple] {
+  height: auto;
+  min-height: 100px;
+  background-color: #fafafa;
+}
+
+/* Responsive: Nếu cần co lại ở màn nhỏ */
+@media (max-width: 576px) {
+  .product__details__option {
+    padding: 16px;
+  }
+}
+
+.table-map {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.table-item {
+  background: #f0f0f0;
+  border: 2px solid transparent;
+  text-align: center;
+  padding: 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: 0.3s;
+}
+
+.table-item:hover {
+  background: #ffe8cc;
+}
+
+.table-item.selected {
+  background: #ffcd99;
+  border-color: #e67c1b;
+  font-weight: bold;
+}
 </style>
