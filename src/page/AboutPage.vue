@@ -27,9 +27,9 @@
             <h2>Đặt bàn dễ dàng – Trải nghiệm ẩm thực trọn vẹn</h2>
           </div>
           <p class="mb-4">
-            <strong>PASGO</strong> là nền tảng đặt chỗ nhà hàng trực
-            tuyến giúp kết nối hàng nghìn thực khách với các quán ăn, nhà hàng,
-            tại Việt Nam. Với thao tác đơn giản, bạn có thể:
+            <strong>PASGO</strong> là nền tảng đặt chỗ nhà hàng trực tuyến giúp
+            kết nối hàng nghìn thực khách với các quán ăn, nhà hàng, tại Việt
+            Nam. Với thao tác đơn giản, bạn có thể:
           </p>
           <ul class="text-start" style="max-width: 700px; margin: 0 auto">
             <li>
@@ -53,7 +53,7 @@
   </section>
 
   <!-- Testimonial Section Begin -->
-  <section class="testimonial spad">
+  <!-- <section class="testimonial spad">
     <div class="container">
       <div class="row">
         <div class="col-lg-12 text-center">
@@ -65,153 +65,171 @@
       </div>
       <div class="row">
         <div class="row testimonial__slider">
-  <div v-if="loadingReviews" class="text-center w-100">Đang tải đánh giá...</div>
-
-  <template v-else>
-    <div v-if="reviews.length > 0" class="d-flex flex-wrap justify-content-center">
-      <div
-        class="col-lg-6 mb-4"
-        v-for="review in reviews"
-        :key="review.id"
-      >
-        <div class="testimonial__item">
-          <div class="testimonial__author">
-            <div class="testimonial__author__pic">
-              <img :src="review.customer.avatar || '/img/testimonial/default.jpg'" alt="Avatar" />
-            </div>
-            <div class="testimonial__author__text">
-              <h5>{{ review.customer.full_name }}</h5>
-            </div>
+          <div v-if="loadingReviews" class="text-center w-100">
+            Đang tải đánh giá...
           </div>
 
-          <div class="rating">
-            <span v-for="n in Math.floor(review.rating)" :key="n" class="icon_star"></span>
-            <span v-if="review.rating % 1 >= 0.5" class="icon_star-half_alt"></span>
-          </div>
+          <template v-else>
+            <div
+              v-if="reviews.length > 0"
+              class="d-flex flex-wrap justify-content-center"
+            >
+              <div
+                class="col-lg-6 mb-4"
+                v-for="review in reviews"
+                :key="review.id"
+              >
+                <div class="testimonial__item">
+                  <div class="testimonial__author">
+                    <div class="testimonial__author__pic">
+                      <img
+                        :src="
+                          review.customer.avatar ||
+                          '/img/testimonial/default.jpg'
+                        "
+                        alt="Avatar"
+                      />
+                    </div>
+                    <div class="testimonial__author__text">
+                      <h5>{{ review.customer.full_name }}</h5>
+                    </div>
+                  </div>
 
-          <p>{{ review.comment }}</p>
-          <small class="d-block mt-2 text-muted">{{ new Date(review.created_at).toLocaleString() }}</small>
+                  <div class="rating">
+                    <span
+                      v-for="n in Math.floor(review.rating)"
+                      :key="n"
+                      class="icon_star"
+                    ></span>
+                    <span
+                      v-if="review.rating % 1 >= 0.5"
+                      class="icon_star-half_alt"
+                    ></span>
+                  </div>
+
+                  <p>{{ review.comment }}</p>
+                  <small class="d-block mt-2 text-muted">{{
+                    new Date(review.created_at).toLocaleString()
+                  }}</small>
+                </div>
+              </div>
+            </div>
+
+            <div v-else class="text-center w-100">Chưa có đánh giá nào.</div>
+
+            <div class="col-12 mt-3" v-if="reviewsPagination.last_page > 1">
+              <nav class="review-pagination text-center">
+                <button
+                  v-for="link in reviewsPagination.links"
+                  :key="link.label"
+                  :disabled="!link.url || link.active"
+                  v-html="link.label"
+                  @click="changeReviewPage(extractPage(link.url))"
+                  :class="{ active: link.active, navBtn: true }"
+                ></button>
+              </nav>
+            </div>
+          </template>
         </div>
       </div>
     </div>
-
-    <div v-else class="text-center w-100">Chưa có đánh giá nào.</div>
-
-    <!-- Phân trang -->
-    <div class="col-12 mt-3" v-if="reviewsPagination.last_page > 1">
-      <nav class="review-pagination text-center">
-        <button
-          v-for="link in reviewsPagination.links"
-          :key="link.label"
-          :disabled="!link.url || link.active"
-          v-html="link.label"
-          @click="changeReviewPage(extractPage(link.url))"
-          :class="{ active: link.active, navBtn: true }"
-        ></button>
-      </nav>
-    </div>
-  </template>
-</div>
-
-      </div>
-    </div>
-  </section>
+  </section> -->
   <!-- Testimonial Section End -->
 
   <!-- Team Section Begin -->
 </template>
 
 <script>
-import axios from 'axios'
+import axios from "axios";
 
 export default {
-    data() {
-        return {
-            loading: true,
-            rating: '',
-            comment: '',
-            selectedReservationId: '',
-            reviews: [],
-            loadingReviews: false,
-            reviewsPagination: {
-                current_page: 1,
-                per_page: 5,
-                last_page: 1,
-                total: 0,
-                links: [],
-            },
-        };
+  data() {
+    return {
+      loading: true,
+      rating: "",
+      comment: "",
+      selectedReservationId: "",
+      reviews: [],
+      loadingReviews: false,
+      reviewsPagination: {
+        current_page: 1,
+        per_page: 5,
+        last_page: 1,
+        total: 0,
+        links: [],
+      },
+    };
+  },
+  computed: {
+    isLoggedIn() {
+      return localStorage.getItem("token") !== null;
     },
-    computed: {
-        isLoggedIn() {
-            return localStorage.getItem('token') !== null;
-        },
-        currentReview() {
-            return this.reviews[this.currentIndex] || null;
-        },
-        currentReservation() {
-            return this.reservations[this.currentIndex] || null;
-        },
-        hasNext() {
-            return this.currentIndex < this.reviews.length - 1;
-        },
+    currentReview() {
+      return this.reviews[this.currentIndex] || null;
     },
-    async mounted() {
-        if (this.restaurantId) {
-            await this.fetchReviews(1);
-        }
+    currentReservation() {
+      return this.reservations[this.currentIndex] || null;
     },
+    hasNext() {
+      return this.currentIndex < this.reviews.length - 1;
+    },
+  },
+  async mounted() {
+    if (this.restaurantId) {
+      await this.fetchReviews(1);
+    }
+  },
 
-    methods: {
-        async fetchReviews(page = 1) {
-            this.loadingReviews = true;
-            try {
-                const res = await axios.get(
-                    `http://localhost:8000/api/restaurants/${this.restaurantId}/reviews`,
-                    { params: { per_page: 5, page } }
-                );
-                this.reviews = res.data.data;
-                // Lưu thông tin phân trang
-                this.reviewsPagination = {
-                    current_page: res.data.current_page,
-                    per_page: res.data.per_page,
-                    last_page: res.data.last_page,
-                    total: res.data.total,
-                    links: res.data.links,
-                };
-            } catch (e) {
-                this.reviews = [];
-                this.reviewsPagination = {
-                    current_page: 1,
-                    per_page: 5,
-                    last_page: 1,
-                    total: 0,
-                    links: [],
-                };
-            }
-            this.loadingReviews = false;
-        },
-        changeReviewPage(page) {
-            if (page && page !== this.reviewsPagination.current_page) {
-                this.fetchReviews(page);
-            }
-        },
-        nextReview() {
-            if (this.hasNext) {
-                this.currentIndex++;
-            }
-        },
-        prevReview() {
-            if (this.currentIndex > 0) {
-                this.currentIndex--;
-            }
-        },
-        extractPage(url) {
-            if (!url) return null;
-            const match = url.match(/page=(\d+)/);
-            return match ? parseInt(match[1]) : null;
-        },
+  methods: {
+    async fetchReviews(page = 1) {
+      this.loadingReviews = true;
+      try {
+        const res = await axios.get(
+          `http://localhost:8000/api/restaurants/${this.restaurantId}/reviews`,
+          { params: { per_page: 5, page } }
+        );
+        this.reviews = res.data.data;
+        // Lưu thông tin phân trang
+        this.reviewsPagination = {
+          current_page: res.data.current_page,
+          per_page: res.data.per_page,
+          last_page: res.data.last_page,
+          total: res.data.total,
+          links: res.data.links,
+        };
+      } catch (e) {
+        this.reviews = [];
+        this.reviewsPagination = {
+          current_page: 1,
+          per_page: 5,
+          last_page: 1,
+          total: 0,
+          links: [],
+        };
+      }
+      this.loadingReviews = false;
     },
+    changeReviewPage(page) {
+      if (page && page !== this.reviewsPagination.current_page) {
+        this.fetchReviews(page);
+      }
+    },
+    nextReview() {
+      if (this.hasNext) {
+        this.currentIndex++;
+      }
+    },
+    prevReview() {
+      if (this.currentIndex > 0) {
+        this.currentIndex--;
+      }
+    },
+    extractPage(url) {
+      if (!url) return null;
+      const match = url.match(/page=(\d+)/);
+      return match ? parseInt(match[1]) : null;
+    },
+  },
 };
 </script>
 
@@ -258,7 +276,7 @@ export default {
 }
 
 .about-intro ul li::before {
-  content: '✓';
+  content: "✓";
   position: absolute;
   left: 0;
   color: #009688;
@@ -351,6 +369,4 @@ export default {
   color: #fff;
   border-color: #e67c1b;
 }
-
-
 </style>
