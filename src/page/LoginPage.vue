@@ -20,7 +20,7 @@
         </div>
     </div>
 </template>
-  
+
 
 <script>
 import axios from 'axios';
@@ -52,7 +52,7 @@ export default {
                 localStorage.setItem('token', res.data.data.token);
                 localStorage.setItem('me', JSON.stringify(res.data.data.customer));
                 localStorage.setItem('userName', res.data.data.customer.full_name);
-                this.$router.push('/'); // chuyển về trang chủ
+                this.$router.push(this.$route.query.redirect || '/');
             } catch (err) {
                 this.error = err.response?.data?.message || 'Đăng nhập thất bại!';
             } finally {
