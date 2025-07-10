@@ -5,7 +5,7 @@
             <img :src="qrValue" alt="Mã QR chuyển khoản" style="width:200px;height:200px;" />
             <p><strong>Nội dung:</strong> {{ qrData.message }}</p>
             <p><strong>Số tiền:</strong> {{ qrData.amount ? qrData.amount.toLocaleString() : '' }} VND</p>
-            <p><strong>Số tài khoản:</strong> {{ qrData.bank_account_number }}</p>
+            <p><strong>Số tài khoản:</strong> {{ qrData.bank_account }}</p>
             <button class="confirm-btn" @click="confirmDeposit">Xác nhận đặt cọc</button>
         </div>
         <div v-else>
@@ -53,6 +53,7 @@ export default {
             );
 
             this.qrData.bank_code = res.data.data.bank_code;
+            console.log("🚀 ~ mounted ~ res.data.data:", res.data.data)
             this.qrData.bank_account = res.data.data.bank_account_number;
             this.qrData.message = `Thanh toán tiền đặt cọc - ${res.data.data.restaurant} - đơn hàng ${this.reservationId}`;
             this.qrData.amount = res.data.data.amount;

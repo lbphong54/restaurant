@@ -7,8 +7,6 @@
           <div class="row d-flex justify-content-center">
             <div class="col-lg-8">
               <div class="">
-
-                <h2>{{ img }}</h2>
                 
               </div>
             </div>

@@ -52,7 +52,7 @@
               <li><router-link to="/">Trang Chủ</router-link></li>
               <li><router-link to="/about">Về chúng tôi</router-link></li>
               <li><router-link to="/restaurant">Nhà hàng</router-link></li>
-              <li><router-link to="/blog">Blog</router-link></li>
+              <!-- <li><router-link to="/blog">Blog</router-link></li> -->
               <li><router-link to="/contact">Liên Hệ</router-link></li>
             </ul>
           </nav>
