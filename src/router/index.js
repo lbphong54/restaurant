@@ -13,6 +13,7 @@ import ReservationPage from "../page/ReservationPage.vue";
 import HistoryPage from "../page/HistoryPage.vue";
 import QrPage from "../page/QrPage.vue";
 import OtpPage from "../page/OtpPage.vue";
+import ForgotPasswordPage from '../page/ForgotPasswordPage.vue';
 
 const routes = [
     {
@@ -78,6 +79,11 @@ const routes = [
                 path: 'otp',
                 name: 'otp',
                 component: OtpPage,
+            },
+            {
+                path: 'forgot-password',
+                name: 'forgot-password',
+                component: ForgotPasswordPage,
             },
         ],
     },
