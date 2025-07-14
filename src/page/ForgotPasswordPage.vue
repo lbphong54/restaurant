@@ -1,26 +1,16 @@
 <template>
-    <div class="login-wrapper">
-        <div class="login-card">
-            <h2 class="login-title">Đăng nhập</h2>
+    <div class="forgot-password-wrapper">
+        <div class="forgot-password-card">
+            <h2 class="forgot-password-title">Đăng nhập</h2>
 
-            <form @submit.prevent="handleLogin" class="login-form">
+            <form @submit.prevent="handleforgotpassword" class="forgot-password-form">
                 <input type="text" placeholder="Email của bạn" v-model="email" required />
-                <input type="password" placeholder="Mật khẩu" v-model="password" required />
                 <button class="primary-btn" type="submit" :disabled="loading">
-                    {{ loading ? 'Đang đăng nhập...' : 'Đăng nhập' }}
+                    {{ loading ? 'Đang gửi...' : 'Gửi Otp' }}
                 </button>
             </form>
 
             <div v-if="error" class="error-text">{{ error }}</div>
-            <!-- <p class="signup-text">
-                Quên mật khẩu?
-                <router-link to="/forgot-password">Quên mật khẩu?</router-link>
-            </p> -->
-
-            <p class="signup-text">
-                Bạn chưa có tài khoản?
-                <router-link to="/signup">Đăng ký</router-link>
-            </p>
         </div>
     </div>
 </template>
@@ -33,32 +23,26 @@ export default {
     data() {
         return {
             email: '',
-            password: '',
             error: '',
             loading: false
         };
     },
     methods: {
-        async handleLogin() {
+        async handleforgotpassword() {
             this.error = '';
             this.loading = true;
             try {
 
-
-                const res = await axios.post('http://localhost:8000/api/login', {
+                const res = await axios.post('http://localhost:8000/api/forgot-password', {
                     email: this.email,
-                    password: this.password
                 }, {
                     withCredentials: true
                 });
+                console.log("🚀 ~ handleforgotpassword ~ res:", res)
 
-                // Xử lý thành công (ví dụ: lưu token, chuyển trang)
-                localStorage.setItem('token', res.data.data.token);
-                localStorage.setItem('me', JSON.stringify(res.data.data.customer));
-                localStorage.setItem('userName', res.data.data.customer.full_name);
                 this.$router.push(this.$route.query.redirect || '/');
             } catch (err) {
-                this.error = err.response?.data?.message || 'Đăng nhập thất bại!';
+                this.error = err.response?.data?.message || 'Thất bại!';
             } finally {
                 this.loading = false;
             }
@@ -70,7 +54,7 @@ export default {
 </script>
 
 <style scoped>
-.login-wrapper {
+.forgot-password-wrapper {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -79,7 +63,7 @@ export default {
     padding: 32px 16px;
 }
 
-.login-card {
+.forgot-password-card {
     width: 100%;
     max-width: 400px;
     background: #fff;
@@ -89,20 +73,20 @@ export default {
     text-align: center;
 }
 
-.login-title {
+.forgot-password-title {
     font-size: 28px;
     font-weight: 700;
     color: #e67c1b;
     margin-bottom: 24px;
 }
 
-.login-form {
+.forgot-password-form {
     display: flex;
     flex-direction: column;
     gap: 16px;
 }
 
-.login-form input {
+.forgot-password-form input {
     padding: 12px;
     font-size: 15px;
     border: 1px solid #ddd;
@@ -110,7 +94,7 @@ export default {
     transition: 0.3s;
 }
 
-.login-form input:focus {
+.forgot-password-form input:focus {
     border-color: #009688;
     outline: none;
     background-color: #fff;

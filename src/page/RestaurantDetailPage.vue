@@ -59,26 +59,13 @@
               <!-- Multiselect chọn bàn -->
               <div class="table-map">
                 <div v-for="table in availableTables" :key="table.id"
-                  :class="['table-item', { selected: isSelected(table) }]" @click="toggleTable(table)">
+                  :class="['table-item', { selected: isSelected(table), disabled: table.disable }]"
+                  @click="!table.disable && toggleTable(table)">
                   {{ table.name }}
                   <br>
                   <span class="table-number">(👤{{ table.max_capacity }})</span>
                 </div>
               </div>
-
-              <!-- Nút Đặt bàn -->
-              <!-- <router-link class="primary-btn" :to="{
-                path: '/reservation',
-                query: {
-                  restaurant_id: restaurant.id,
-                  adults: adults,
-                  children: children,
-                  time: selectedDate + 'T' + selectedTime,
-                  tables: selectedTableIds.join(','),
-                },
-              }">
-                Đặt bàn
-              </router-link> -->
               <button class="primary-btn" @click="handleReservation">
                 Đặt bàn
               </button>
@@ -937,5 +924,12 @@ img {
   background: #ffcd99;
   border-color: #e67c1b;
   font-weight: bold;
+}
+
+.table-item.disabled {
+  pointer-events: none;
+  background: #f18080;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 </style>
