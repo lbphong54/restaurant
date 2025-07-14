@@ -44,7 +44,7 @@
 
               <div class="quantity">
                 <label for="date">Chọn ngày:</label>
-                <input type="date" id="date" v-model="selectedDate" :min="minDate" @change="onDateTimeChange" />
+                <input type="date" id="date" v-model="selectedDate" :min="minDate" @change="handleDateChange" />
               </div>
 
               <div class="quantity">
@@ -258,6 +258,7 @@ export default {
       selectedTableIds: [],
       adults: 1,
       children: 0,
+      opening_hours: {},
     };
   },
   setup() {
@@ -276,6 +277,8 @@ export default {
           .then((res) => {
             this.restaurant = res.data.data;
             this.tables = res.data.data.restaurant_tables;
+            this.opening_hours = res.data.data.opening_hours || {};
+            console.log("🚀 ~ .then ~ opening_hours:", this.opening_hours)
 
             return axios.get(
               `http://localhost:8000/api/restaurants/${newId}/related`
@@ -392,10 +395,18 @@ export default {
     isSelected(table) {
       return this.selectedTables.some(t => t.id === table.id);
     },
+    handleDateChange() {
+      this.onDateChange();       
+      this.onDateTimeChange();
+    },
     onDateTimeChange() {
       if (this.selectedDate && this.selectedTime) {
         this.fetchAvailableTables();
       }
+    },
+    onDateChange() {
+      this.generateTimeOptions();
+      this.availableTables = []; 
     },
     async fetchReviews(page = 1) {
       this.loadingReviews = true;
@@ -520,19 +531,50 @@ export default {
     },
 
     generateTimeOptions() {
-      const now = new Date();
-      let start = now.getHours() * 60 + now.getMinutes();
-      start = Math.ceil(start / 30) * 30; // làm tròn lên 30 phút
-      const end = 23 * 60;  // phút, 23:00
-      const interval = 30;  // phút
+      this.selectedTime = ""; // Reset selected time
+      const date = this.selectedDate ? new Date(this.selectedDate) : new Date();
+      const today = new Date();
 
-      const options = [];
-      for (let minutes = start; minutes <= end; minutes += interval) {
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        const label = `${hours}:${mins === 0 ? "00" : mins}`;
-        options.push(label);
+      const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+      const dayKey = days[date.getDay()];
+      const opening = this.opening_hours?.[dayKey] ?? {};
+
+      const isToday = date.toDateString() === today.toDateString();
+
+      const toMinutes = (hhmm) => {
+        const [h, m] = hhmm.split(':').map(Number);
+        return h * 60 + m;
+      };
+
+      // Nếu là hôm nay → lấy giờ hiện tại (làm tròn lên 30 phút)
+      let nowMinutes = today.getHours() * 60 + today.getMinutes();
+      let roundedNow = Math.ceil(nowMinutes / 30) * 30;
+
+      // Giờ bắt đầu
+      let start;
+
+      if (isToday) {
+        const openMinutes = opening.open ? toMinutes(opening.open) : roundedNow;
+        start = Math.max(roundedNow, openMinutes);
+      } else {
+        // Nếu không phải hôm nay → bắt đầu từ 6:00 sáng hoặc giờ mở cửa nếu lớn hơn
+        const openMinutes = opening.open ? toMinutes(opening.open) : 6 * 60;
+        start = Math.max(openMinutes, 6 * 60);
       }
+
+      // Giờ kết thúc: dùng opening.close hoặc mặc định 22:00
+      const end = opening.close ? toMinutes(opening.close) : 22 * 60;
+
+      // Tạo danh sách thời gian
+      const interval = 30;
+      const options = [];
+
+      for (let minutes = start; minutes <= end; minutes += interval) {
+        const hours = Math.floor(minutes / 60).toString().padStart(2, '0');
+        const mins = (minutes % 60).toString().padStart(2, '0');
+        options.push(`${hours}:${mins}`);
+      }
+
       this.timeOptions = options;
     },
 
